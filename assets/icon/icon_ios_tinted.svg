@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+  </defs>
+  <g transform="translate(512 512) scale(1.2195) translate(-512 -512)">
+    <path d="M551.2 269.1 A246.0 246.0 0 0 1 656.0 312.6" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
+    <path d="M711.4 368.0 A246.0 246.0 0 0 1 754.9 472.8" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
+    <path d="M754.9 551.2 A246.0 246.0 0 0 1 711.4 656.0" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
+    <path d="M656.0 711.4 A246.0 246.0 0 0 1 551.2 754.9" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
+    <path d="M472.8 754.9 A246.0 246.0 0 0 1 368.0 711.4" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
+    <path d="M312.6 656.0 A246.0 246.0 0 0 1 269.1 551.2" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
+    <path d="M269.1 472.8 A246.0 246.0 0 0 1 312.6 368.0" stroke="#fff" stroke-opacity="0.38" stroke-width="54.1" stroke-linecap="round" fill="none"/>
+    <path d="M368.0 312.6 A246.0 246.0 0 0 1 472.8 269.1" stroke="#fff" stroke-opacity="0.38" stroke-width="54.1" stroke-linecap="round" fill="none"/>
+    <path d="M561.2 362.8 L428.4 548.1 L494.0 548.1 L461.2 661.2 L595.6 474.3 L535.0 474.3 Z" fill="#fff" stroke="#fff" stroke-width="18.0" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF2A55"/>
+      <stop offset="0.5" stop-color="#F2133C"/>
+      <stop offset="1" stop-color="#FF8A2B"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="0.22" cy="0.12" r="0.75">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.28"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#7A0016" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#shine)"/>
+  <g filter="url(#shadow)">
+    <path d="M559.8 215.8 A300.0 300.0 0 0 1 687.6 268.8" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
+    <path d="M755.2 336.4 A300.0 300.0 0 0 1 808.2 464.2" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
+    <path d="M808.2 559.8 A300.0 300.0 0 0 1 755.2 687.6" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
+    <path d="M687.6 755.2 A300.0 300.0 0 0 1 559.8 808.2" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
+    <path d="M464.2 808.2 A300.0 300.0 0 0 1 336.4 755.2" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
+    <path d="M268.8 687.6 A300.0 300.0 0 0 1 215.8 559.8" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
+    <path d="M215.8 464.2 A300.0 300.0 0 0 1 268.8 336.4" stroke="#fff" stroke-opacity="0.38" stroke-width="66.0" stroke-linecap="round" fill="none"/>
+    <path d="M336.4 268.8 A300.0 300.0 0 0 1 464.2 215.8" stroke="#fff" stroke-opacity="0.38" stroke-width="66.0" stroke-linecap="round" fill="none"/>
+    <path d="M572.0 330.0 L410.0 556.0 L490.0 556.0 L450.0 694.0 L614.0 466.0 L540.0 466.0 Z" fill="#fff" stroke="#fff" stroke-width="22.0" stroke-linejoin="round"/>
+  </g>
+</svg>

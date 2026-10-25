@@ -1,0 +1,19 @@
+# App icon generation. Sources live in assets/icon/ (SVG → PNG).
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon/icon.png
+  min_sdk_android: 24
+
+  # Android 8+ adaptive icon; the foreground is already sized to the safe zone.
+  adaptive_icon_background: assets/icon/icon_background.png
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  adaptive_icon_foreground_inset: 0
+  # Android 13+ themed icon.
+  adaptive_icon_monochrome: assets/icon/icon_monochrome.png
+
+  # iOS 18+ dark and tinted appearances.
+  remove_alpha_ios: true
+  image_path_ios_dark_transparent: assets/icon/icon_ios_dark.png
+  image_path_ios_tinted_grayscale: assets/icon/icon_ios_tinted.png

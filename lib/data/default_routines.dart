@@ -1,0 +1,76 @@
+import '../models/timer_mode.dart';
+import '../models/workout_config.dart';
+
+/// Seeded into the Routines tab on first launch.
+const defaultRoutines = <WorkoutConfig>[
+  WorkoutConfig(
+    id: 'preset-classic',
+    name: '클래식 타바타',
+    mode: TimerMode.tabata,
+    workSec: 20,
+    restSec: 10,
+    rounds: 8,
+  ),
+  WorkoutConfig(
+    id: 'preset-hometraining',
+    name: '홈트 타바타',
+    mode: TimerMode.tabata,
+    workSec: 20,
+    restSec: 10,
+    rounds: 8,
+    exercises: ['스쿼트', '푸시업', '버피', '점핑잭'],
+  ),
+  WorkoutConfig(
+    id: 'preset-beginner',
+    name: '초보자 타바타',
+    mode: TimerMode.tabata,
+    workSec: 20,
+    restSec: 20,
+    rounds: 6,
+  ),
+  WorkoutConfig(
+    id: 'preset-double',
+    name: '더블 타바타',
+    mode: TimerMode.tabata,
+    workSec: 20,
+    restSec: 10,
+    rounds: 8,
+    sets: 2,
+    setRestSec: 60,
+  ),
+  WorkoutConfig(
+    id: 'preset-hiit3030',
+    name: 'HIIT 30/30',
+    mode: TimerMode.interval,
+    workSec: 30,
+    restSec: 30,
+    rounds: 10,
+    warmupSec: 60,
+    cooldownSec: 60,
+  ),
+  WorkoutConfig(
+    id: 'preset-circuit',
+    name: '전신 서킷',
+    mode: TimerMode.interval,
+    workSec: 40,
+    restSec: 20,
+    rounds: 6,
+    sets: 3,
+    setRestSec: 60,
+    exercises: ['스쿼트', '푸시업', '버피', '런지', '마운틴 클라이머', '플랭크'],
+  ),
+  WorkoutConfig(
+    id: 'preset-emom10',
+    name: 'EMOM 10분',
+    mode: TimerMode.emom,
+    workSec: 60,
+    rounds: 10,
+  ),
+  WorkoutConfig(id: 'preset-amrap12', name: 'AMRAP 12분', mode: TimerMode.amrap, workSec: 12 * 60),
+  WorkoutConfig(
+    id: 'preset-fortime20',
+    name: 'For Time 20분 캡',
+    mode: TimerMode.forTime,
+    workSec: 20 * 60,
+  ),
+];

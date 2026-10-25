@@ -11,7 +11,7 @@ ThemeData buildAppTheme() {
     colorScheme: const ColorScheme.dark(
       primary: AppColors.accent,
       onPrimary: Colors.white,
-      secondary: AppColors.accentOrange,
+      secondary: AppColors.accentAlt,
       surface: AppColors.surface,
       onSurface: AppColors.textPrimary,
       error: AppColors.accent,
@@ -39,7 +39,7 @@ ThemeData buildAppTheme() {
     dividerTheme: const DividerThemeData(color: AppColors.border, thickness: 1, space: 1),
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
-        (s) => s.contains(WidgetState.selected) ? Colors.white : const Color(0xFFBFC1C8),
+        (s) => s.contains(WidgetState.selected) ? Colors.white : const Color(0xFFBCC3D2),
       ),
       trackColor: WidgetStateProperty.resolveWith(
         (s) => s.contains(WidgetState.selected) ? AppColors.accent : AppColors.surfaceHigh,

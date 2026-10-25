@@ -92,8 +92,6 @@ class _DayColumn extends StatelessWidget {
   final bool isSelected;
   final bool showValue;
 
-  static const _plotHeight = 84.0;
-
   @override
   Widget build(BuildContext context) {
     final empty = value == 0;
@@ -123,19 +121,22 @@ class _DayColumn extends StatelessWidget {
               : null,
         ),
         const SizedBox(height: 4),
-        SizedBox(
-          height: _plotHeight,
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              width: 16,
-              // Empty days keep a short stub so the baseline reads as a row.
-              height: empty ? 3 : math.max(6, _plotHeight * fraction),
-              decoration: BoxDecoration(
-                color: empty ? AppColors.surfaceHigh : color,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+        // The plot takes whatever height the labels leave, so font metrics
+        // that differ per platform can't overflow the column.
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) => Align(
+              alignment: Alignment.bottomCenter,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                width: 16,
+                // Empty days keep a short stub so the baseline reads as a row.
+                height: empty ? 3 : math.max(6, constraints.maxHeight * fraction),
+                decoration: BoxDecoration(
+                  color: empty ? AppColors.surfaceHigh : color,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                ),
               ),
             ),
           ),

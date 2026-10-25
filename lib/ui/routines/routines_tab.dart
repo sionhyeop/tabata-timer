@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../data/app_scope.dart';
+import '../../engine/intensity.dart';
 import '../../engine/workout_plan.dart';
 import '../../models/workout_config.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
 import '../widgets/common.dart';
+import '../widgets/intensity_meter.dart';
 import '../workout/launch.dart';
 import 'routine_editor_page.dart';
 
@@ -79,6 +81,7 @@ class _RoutineCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = workoutDurationSec(routine);
+    final intensity = estimateIntensity(routine);
     return AppCard(
       padding: const EdgeInsets.fromLTRB(20, 16, 8, 12),
       onTap: () => openRoutineEditor(context, routine),
@@ -94,7 +97,7 @@ class _RoutineCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Color(0xFFC9CBD1),
+                    color: AppColors.cardCaption,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -137,6 +140,10 @@ class _RoutineCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
                   ),
+                ],
+                if (intensity != null) ...[
+                  const SizedBox(height: 10),
+                  IntensityMeter(level: intensity, compact: true),
                 ],
               ],
             ),

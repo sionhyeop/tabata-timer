@@ -23,11 +23,12 @@ class _ConfettiState extends State<Confetti> with SingleTickerProviderStateMixin
 
   static const _colors = [
     AppColors.accent,
-    AppColors.accentOrange,
+    AppColors.accentDeep,
+    AppColors.accentAlt,
     AppColors.prepare,
     AppColors.rest,
     AppColors.setRest,
-    AppColors.warmCool,
+    Color(0xFF2DD4BF),
     Colors.white,
   ];
 

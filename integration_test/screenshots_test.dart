@@ -32,21 +32,22 @@ void main() {
     final services = AppServices(prefs);
     await services.cues.init();
 
-    // A few sessions this week so the history tab has something to show.
+    // Recent sessions on consecutive days (relative to now, so the streak
+    // and list look right whatever time the test runs).
     final now = DateTime.now();
-    final monday = DateTime(now.year, now.month, now.day - (now.weekday - 1));
     final seeded = [
-      (0, 7, 4, 8, 3, '클래식 타바타', TimerMode.tabata),
-      (1, 19, 26, 18, 4, '전신 서킷', TimerMode.interval),
-      (3, 7, 12, 0, 2, 'AMRAP 12분', TimerMode.amrap),
-      (now.weekday - 1, 8, 8, 16, 5, '더블 타바타', TimerMode.tabata),
+      (0, 4, 8, 4, '클래식 타바타', TimerMode.tabata),
+      (1, 26, 18, 3, '전신 서킷', TimerMode.interval),
+      (2, 12, 0, 4, 'AMRAP 12분', TimerMode.amrap),
+      (3, 8, 16, 5, '더블 타바타', TimerMode.tabata),
     ];
-    for (final (day, hour, minutes, rounds, rpe, name, mode) in seeded) {
-      final at = DateTime(monday.year, monday.month, monday.day + day, hour, 30);
-      if (at.isAfter(now)) continue;
+    for (final (day, minutes, rounds, rpe, name, mode) in seeded) {
+      final at = day == 0
+          ? now.subtract(const Duration(minutes: 25))
+          : DateTime(now.year, now.month, now.day - day, 19, 30);
       services.history.add(
         WorkoutRecord(
-          id: 'seed-$day-$hour',
+          id: 'seed-$day',
           name: name,
           mode: mode,
           startedAt: at,

@@ -15,17 +15,18 @@
   <img src="docs/screenshots/05_workout_rest.png" width="200">
 </p>
 <p align="center">
-  <img src="docs/screenshots/08_workout_amrap.png" width="200">
   <img src="docs/screenshots/09_summary.png" width="200">
   <img src="docs/screenshots/10_routines.png" width="200">
+  <img src="docs/screenshots/11_history.png" width="200">
 </p>
 
 ## 기능
 
 - **6가지 타이머** — 타바타, 인터벌(웜업·세트·쿨다운), EMOM, AMRAP(탭으로 라운드 카운트), For Time(랩·타임캡), 휴식(+15초)
 - **원탭 시작** — 모드를 고르고 값 타일의 −/+ 로 조절한 뒤 시작. 숫자를 탭하면 휠로 직접 입력
-- **멀리서도 보이는 운동 화면** — 단계별 풀스크린 컬러(운동 레드 · 휴식 그린 · 준비 앰버), 초대형 숫자, 원형 진행 링, 전체 타임라인, 다음 단계 미리보기
+- **멀리서도 보이는 운동 화면** — 단계별 풀스크린 그라데이션(운동 애저 · 휴식 틸 · 준비 바이올렛), 초대형 숫자, 원형 진행 링, 전체 타임라인, 다음 단계 미리보기
 - **보지 않아도 아는 안내** — 3-2-1 비프, 단계별 전환음, 한국어 음성 안내("휴식. 다음은 버피"), 진동. 듣던 음악은 끊지 않음
+- **강도가 한눈에** — 시작 전 예상 강도(이모지 + 신호 막대), 운동 중 순간 강도에 반응하는 마스코트(💪 → 😤 → 🥵, 휴식 😅 → 😌), 끝난 뒤 체감 강도까지 같은 5단계 이모지·색으로 표시
 - **루틴** — 기본 루틴 9종, 라운드별 운동 이름(서킷), 저장·편집·복제·삭제, 최근 루틴 빠른 시작
 - **기록** — 완료 화면(축하·요약·칼로리 추정·운동 강도), 주간 차트, 연속 운동일
 - **설정** — 효과음·음성·진동, 카운트다운 길이, 준비 시간, 화면 켜짐 유지, 체중
@@ -48,13 +49,13 @@ flutter analyze
 |---|---|
 | 화면 스크린샷(통합 테스트) | `flutter drive --driver=test_driver/integration_test.dart --target=integration_test/screenshots_test.dart -d <기기 ID>` → `build/screenshots/` |
 | 효과음 재생성 | `python3 tool/gen_sounds.py` |
-| 앱 아이콘 재생성 | `assets/icon/*.svg`를 PNG로 렌더링 후 `dart run flutter_launcher_icons` |
+| 앱 아이콘 재생성 | `python3 tool/gen_icon.py && dart run flutter_launcher_icons` (Chrome 필요) |
 
 ## 구조
 
 ```
 lib/
-├─ engine/     단계 계산(workout_plan) · 실행기(workout_runner) · 큐 이벤트
+├─ engine/     단계 계산(workout_plan) · 실행기(workout_runner) · 큐 이벤트 · 강도 추정(intensity)
 ├─ models/     WorkoutConfig, IntervalStep, WorkoutRecord, AppSettings
 ├─ data/       설정·루틴·기록·타이머 설정 저장소, AppScope
 ├─ services/   CuePlayer(효과음·음성·진동), 칼로리 추정

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/app_scope.dart';
 import '../../data/routine_store.dart';
+import '../../engine/intensity.dart';
 import '../../engine/workout_plan.dart';
 import '../../models/timer_mode.dart';
 import '../../models/workout_config.dart';
@@ -10,6 +11,7 @@ import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
 import '../widgets/common.dart';
 import '../widgets/config_fields.dart';
+import '../widgets/intensity_meter.dart';
 import '../widgets/mode_chips.dart';
 import '../widgets/value_tile.dart';
 import '../workout/launch.dart';
@@ -81,7 +83,7 @@ class TimerTab extends StatelessWidget {
                           onChanged: (s) => setup.update(config.copyWith(workSec: s)),
                         ),
                       ),
-                    _TotalRow(config: config),
+                    _SummaryCard(config: config),
                   ],
                 ),
               ),
@@ -109,8 +111,10 @@ class TimerTab extends StatelessWidget {
   }
 }
 
-class _TotalRow extends StatelessWidget {
-  const _TotalRow({required this.config});
+/// Total time next to the expected effort, so the cost of a change to
+/// any tile is visible right away.
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({required this.config});
 
   final WorkoutConfig config;
 
@@ -123,25 +127,65 @@ class _TotalRow extends StatelessWidget {
       TimerMode.rest => ('휴식', formatClock(total!)),
       _ => ('총 운동 시간', formatClock(total!)),
     };
+    final intensity = estimateIntensity(config);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
-          const SizedBox(width: 10),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              fontFeatures: tabularFigures,
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+      child: AppCard(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        child: Row(
+          children: [
+            Expanded(
+              child: _Labeled(
+                label: label,
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    fontFeatures: tabularFigures,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+            if (intensity != null) ...[
+              Container(width: 1, height: 40, color: AppColors.border),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _Labeled(
+                  label: '예상 강도',
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: IntensityMeter(level: intensity),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
+    );
+  }
+}
+
+class _Labeled extends StatelessWidget {
+  const _Labeled({required this.label, required this.child});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+        const SizedBox(height: 6),
+        SizedBox(
+          height: 34,
+          child: Align(alignment: Alignment.centerLeft, child: child),
+        ),
+      ],
     );
   }
 }

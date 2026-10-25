@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../../engine/intensity.dart';
 import '../../theme/app_colors.dart';
 
-/// Perceived effort scale shown after a workout.
+/// Perceived effort after a workout. Shares faces and colors with the
+/// expected-intensity meter; only the wording is about how it felt.
 class RpeLevel {
-  const RpeLevel(this.value, this.emoji, this.label, this.color);
+  const RpeLevel(this.intensity, this.label);
 
-  final int value;
-  final String emoji;
+  final IntensityLevel intensity;
   final String label;
-  final Color color;
+
+  int get value => intensity.value;
+  String get emoji => intensity.emoji;
+  Color get color => AppColors.intensityRamp[intensity.index];
 
   static RpeLevel? of(int? value) {
     for (final level in rpeLevels) {
@@ -20,11 +24,11 @@ class RpeLevel {
 }
 
 const rpeLevels = [
-  RpeLevel(1, '😌', '가벼워요', AppColors.rest),
-  RpeLevel(2, '🙂', '적당해요', AppColors.setRest),
-  RpeLevel(3, '😤', '힘들어요', AppColors.prepare),
-  RpeLevel(4, '🥵', '버거워요', AppColors.accentOrange),
-  RpeLevel(5, '🔥', '한계예요', AppColors.accent),
+  RpeLevel(IntensityLevel.light, '가벼워요'),
+  RpeLevel(IntensityLevel.moderate, '적당해요'),
+  RpeLevel(IntensityLevel.vigorous, '힘들어요'),
+  RpeLevel(IntensityLevel.hard, '버거워요'),
+  RpeLevel(IntensityLevel.extreme, '한계예요'),
 ];
 
 /// Colored circle + caption, like the mood picker in the reference.

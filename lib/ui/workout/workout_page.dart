@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../data/app_scope.dart';
+import '../../engine/intensity.dart';
 import '../../engine/workout_cue.dart';
 import '../../engine/workout_plan.dart';
 import '../../engine/workout_runner.dart';
@@ -17,6 +18,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
 import '../widgets/common.dart';
+import '../widgets/intensity_meter.dart';
 import 'summary_page.dart';
 
 /// Full-screen workout. The background takes the phase color so the state
@@ -153,10 +155,19 @@ class _WorkoutPageState extends State<WorkoutPage> {
           builder: (context, _) {
             final restDone = _mode == TimerMode.rest && _runner.isFinished;
             final base = restDone ? AppColors.rest : AppColors.phase(_runner.current.phase);
-            final bg = Color.lerp(base, Colors.black, _runner.isPaused ? 0.62 : 0.2)!;
+            // Lighter at the top, deeper at the bottom; paused dims both.
+            final paused = _runner.isPaused;
+            final top = Color.lerp(base, Colors.black, paused ? 0.6 : 0.08)!;
+            final bottom = Color.lerp(base, Colors.black, paused ? 0.75 : 0.42)!;
             return AnimatedContainer(
               duration: const Duration(milliseconds: 350),
-              color: bg,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [top, bottom],
+                ),
+              ),
               child: Scaffold(
                 backgroundColor: Colors.transparent,
                 body: SafeArea(child: _buildBody(restDone, base)),
@@ -232,6 +243,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          _Mascot(emoji: restDone ? '💪' : _mascot(step), size: ring * 0.12),
+                          SizedBox(height: ring * 0.02),
                           SizedBox(
                             width: ring * 0.78,
                             // Sized to the ring; long times shrink, short ones
@@ -242,7 +255,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 restDone ? '0' : _timeText(step),
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: ring * 0.4,
+                                  fontSize: ring * 0.36,
                                   fontWeight: FontWeight.w800,
                                   height: 1.0,
                                   fontFeatures: tabularFigures,
@@ -360,6 +373,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
         };
     }
   }
+
+  String _mascot(IntervalStep step) => workoutMascot(
+    phase: step.phase,
+    mode: _mode,
+    stepProgress: _runner.stepProgress,
+    remainingMs: _runner.stepRemainingMs,
+    isLastRound: step.isLastRound,
+    paused: _runner.isPaused,
+  );
 
   double _ringProgress(IntervalStep step) {
     if (step.durationMs == null) return (_runner.stepElapsedMs % 60000) / 60000;
@@ -593,6 +615,40 @@ class _PausedBadge extends StatelessWidget {
       child: const Text(
         '일시정지',
         style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+/// Reacts to the moment: 💪 → 😤 → 🥵 through a work interval, 😅 → 😌
+/// while resting. Pops in when it changes.
+class _Mascot extends StatelessWidget {
+  const _Mascot({required this.emoji, required this.size});
+
+  final String emoji;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: SizedBox(
+        height: size * 1.5,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 320),
+          layoutBuilder: unclippedSwitcherLayout,
+          transitionBuilder: (child, animation) => ScaleTransition(
+            scale: CurvedAnimation(parent: animation, curve: Curves.elasticOut),
+            child: child,
+          ),
+          // A line height that fits the box: a paragraph taller than its
+          // constraints gets clipped, and Android's emoji glyphs run tall.
+          child: Text(
+            emoji,
+            key: ValueKey(emoji),
+            overflow: TextOverflow.visible,
+            style: TextStyle(fontSize: size, height: 1.25),
+          ),
+        ),
       ),
     );
   }

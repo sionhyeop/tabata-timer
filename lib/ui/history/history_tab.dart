@@ -210,8 +210,18 @@ class _RecordCard extends StatelessWidget {
               if (rpe != null) ...[
                 const SizedBox(height: 4),
                 Tooltip(
-                  message: rpe.label,
-                  child: Text(rpe.emoji, style: const TextStyle(fontSize: 18)),
+                  message: '강도 · ${rpe.label}',
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: rpe.color.withValues(alpha: 0.22),
+                      border: Border.all(color: rpe.color.withValues(alpha: 0.6), width: 1.5),
+                    ),
+                    child: Text(rpe.emoji, style: const TextStyle(fontSize: 16)),
+                  ),
                 ),
               ],
             ],

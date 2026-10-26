@@ -33,34 +33,56 @@ class ConfigPanel extends StatelessWidget {
   }
 }
 
-/// 운동 and 휴식 as one unit, with the ratio between them drawn on top.
+/// 운동 and 휴식 as one unit: the ratio bar on top, both values below, in a
+/// card set slightly apart from the rest with a faint gradient edge.
 class WorkRestCard extends StatelessWidget {
   const WorkRestCard({super.key, required this.work, required this.rest});
 
   final ConfigField work;
   final ConfigField rest;
 
+  static final _tint = Color.alphaBlend(
+    AppColors.accent.withValues(alpha: 0.06),
+    AppColors.surface,
+  );
+
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: Column(
-        children: [
-          _RatioHeader(work: work.value, rest: rest.value),
-          const SizedBox(height: 8),
-          RatioBar(work: work.value, rest: rest.value),
-          const SizedBox(height: 12),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(child: ValueTile(field: work, bare: true)),
-                const VerticalDivider(width: 28, thickness: 1, color: AppColors.border),
-                Expanded(child: ValueTile(field: rest, bare: true)),
-              ],
-            ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(17),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.accentDeep.withValues(alpha: 0.6),
+            AppColors.accent.withValues(alpha: 0.2),
+            AppColors.rest.withValues(alpha: 0.5),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(1.2),
+        child: AppCard(
+          color: _tint,
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+          child: Column(
+            children: [
+              RatioBar(work: work.value, rest: rest.value),
+              const SizedBox(height: 14),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: ValueTile(field: work, bare: true)),
+                    const VerticalDivider(width: 28, thickness: 1, color: AppColors.border),
+                    Expanded(child: ValueTile(field: rest, bare: true)),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -77,63 +99,9 @@ String ratioLabel(int work, int rest) {
   return r >= 1 ? '${r.toStringAsFixed(1)} : 1' : '1 : ${(1 / r).toStringAsFixed(1)}';
 }
 
-class _RatioHeader extends StatelessWidget {
-  const _RatioHeader({required this.work, required this.rest});
-
-  final int work;
-  final int rest;
-
-  @override
-  Widget build(BuildContext context) {
-    final total = work + rest;
-    final workPct = total == 0 ? 100 : (work * 100 / total).round();
-    const label = TextStyle(
-      color: AppColors.textSecondary,
-      fontSize: 13,
-      fontWeight: FontWeight.w600,
-      fontFeatures: tabularFigures,
-    );
-    return Row(
-      children: [
-        Text('운동 $workPct%', style: label),
-        const Spacer(),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween(begin: const Offset(0, 0.4), end: Offset.zero).animate(animation),
-              child: child,
-            ),
-          ),
-          child: Container(
-            key: ValueKey(ratioLabel(work, rest)),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceHigh,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              ratioLabel(work, rest),
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                fontFeatures: tabularFigures,
-              ),
-            ),
-          ),
-        ),
-        const Spacer(),
-        Text('휴식 ${100 - workPct}%', style: label),
-      ],
-    );
-  }
-}
-
 /// One continuous gradient — indigo → azure for work, blending into
-/// teal → mint for rest — with the split sliding when values change, a
-/// glowing knob at the split that bounces on change, and a soft sheen that
-/// sweeps across whenever the ratio changes.
+/// teal → mint for rest — labelled inside with each share. The split slides
+/// when values change, its marker bounces, and a soft sheen sweeps across.
 class RatioBar extends StatefulWidget {
   const RatioBar({super.key, required this.work, required this.rest});
 
@@ -150,6 +118,15 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
   late final AnimationController _sheen = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1100),
+  );
+
+  static const _barHeight = 26.0;
+  static const _label = TextStyle(
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: FontWeight.w800,
+    fontFeatures: tabularFigures,
+    shadows: [Shadow(color: Color(0x40000000), blurRadius: 3)],
   );
 
   @override
@@ -182,13 +159,14 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    const barHeight = 12.0;
-    const knob = 16.0;
+    final workPct = (_fraction * 100).round();
     return Semantics(
-      label: '운동 ${widget.work}초, 휴식 ${widget.rest}초, 비율 ${ratioLabel(widget.work, widget.rest)}',
+      label:
+          '운동 ${widget.work}초 $workPct퍼센트, 휴식 ${widget.rest}초 ${100 - workPct}퍼센트, '
+          '비율 ${ratioLabel(widget.work, widget.rest)}',
       child: ExcludeSemantics(
         child: SizedBox(
-          height: knob + 4,
+          height: _barHeight + 6,
           child: TweenAnimationBuilder<double>(
             tween: Tween(end: _fraction),
             duration: const Duration(milliseconds: 450),
@@ -197,6 +175,7 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
               builder: (context, constraints) {
                 final width = constraints.maxWidth;
                 final split = width * f;
+                final restShown = widget.rest > 0;
                 return Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.centerLeft,
@@ -204,9 +183,9 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
                     Positioned(
                       left: 0,
                       right: 0,
-                      height: barHeight,
+                      height: _barHeight,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(barHeight / 2),
+                        borderRadius: BorderRadius.circular(_barHeight / 2),
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
@@ -217,43 +196,71 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
                                 decoration: BoxDecoration(gradient: _sheenAt(_sheen.value)),
                               ),
                             ),
+                            // Each share labelled inside its own part; text
+                            // shortens, then hides, as a part narrows.
+                            Positioned(
+                              left: 12,
+                              width: (split - 20).clamp(0, width),
+                              top: 0,
+                              bottom: 0,
+                              child: _ShareLabel(
+                                full: '운동 $workPct%',
+                                short: '$workPct%',
+                                align: Alignment.centerLeft,
+                              ),
+                            ),
+                            Positioned(
+                              right: 12,
+                              width: restShown ? (width - split - 20).clamp(0, width) : width / 2,
+                              top: 0,
+                              bottom: 0,
+                              child: _ShareLabel(
+                                full: restShown ? '휴식 ${100 - workPct}%' : '휴식 없음',
+                                short: restShown ? '${100 - workPct}%' : '',
+                                align: Alignment.centerRight,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
-                    if (f < 0.999)
-                      Positioned(
-                        left: (split - knob / 2).clamp(0, width - knob),
-                        child: TweenAnimationBuilder<double>(
-                          // A new key restarts the bounce whenever the ratio changes.
-                          key: ValueKey(_fraction),
-                          tween: Tween(begin: 1.35, end: 1),
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.elasticOut,
-                          builder: (context, scale, child) =>
-                              Transform.scale(scale: scale, child: child),
-                          child: Container(
-                            width: knob,
-                            height: knob,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.surface, width: 3),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.accentAlt.withValues(alpha: 0.7),
-                                  blurRadius: 10,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                    if (restShown) _marker(split, width),
                   ],
                 );
               },
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// A slim glowing bar at the split that bounces when the ratio changes.
+  Widget _marker(double split, double width) {
+    const w = 4.0;
+    return Positioned(
+      left: (split - w / 2).clamp(0, width - w),
+      top: 0,
+      bottom: 0,
+      child: TweenAnimationBuilder<double>(
+        // A new key restarts the bounce whenever the ratio changes.
+        key: ValueKey(_fraction),
+        tween: Tween(begin: 1.4, end: 1),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.elasticOut,
+        builder: (context, scale, child) => Transform.scale(scaleY: scale, scaleX: 1, child: child),
+        child: Container(
+          width: w,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(2),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accentAlt.withValues(alpha: 0.8),
+                blurRadius: 8,
+                spreadRadius: 1,
+              ),
+            ],
           ),
         ),
       ),
@@ -286,6 +293,41 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
         Colors.white.withValues(alpha: 0),
       ],
       stops: s,
+    );
+  }
+}
+
+/// Picks the longest of [full] / [short] that fits, or nothing.
+class _ShareLabel extends StatelessWidget {
+  const _ShareLabel({required this.full, required this.short, required this.align});
+
+  final String full;
+  final String short;
+  final Alignment align;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double widthOf(String text) {
+          final painter = TextPainter(
+            text: TextSpan(text: text, style: _RatioBarState._label),
+            textDirection: TextDirection.ltr,
+            textScaler: MediaQuery.textScalerOf(context),
+          )..layout();
+          return painter.width;
+        }
+
+        final available = constraints.maxWidth;
+        final text = widthOf(full) <= available
+            ? full
+            : (short.isNotEmpty && widthOf(short) <= available ? short : null);
+        if (text == null) return const SizedBox.shrink();
+        return Align(
+          alignment: align,
+          child: Text(text, maxLines: 1, softWrap: false, style: _RatioBarState._label),
+        );
+      },
     );
   }
 }

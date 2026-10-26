@@ -15,6 +15,7 @@ import '../../models/workout_config.dart';
 import '../../models/workout_record.dart';
 import '../../services/background_session.dart';
 import '../../services/calorie.dart';
+import '../../services/workout_notice.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
@@ -83,27 +84,54 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
   void _onCue(WorkoutCue cue) {
     _services.cues.handle(cue, mode: _mode, muted: _muted);
-    if (cue.type == CueType.stepStart) BackgroundSession.update(_notificationText(cue.step!));
+    // Tick cues arrive every second, which keeps the shade's bar moving.
+    if (cue.type != CueType.finished) _pushNotice();
   }
 
-  /// One line for the ongoing notification while the app is in background.
-  String _notificationText(IntervalStep step) {
-    final round = step.totalRounds > 0 ? ' · 라운드 ${step.round}/${step.totalRounds}' : '';
-    return switch (step.phase) {
-      Phase.prepare => '곧 시작해요',
-      Phase.work => switch (_mode) {
-        TimerMode.amrap => 'AMRAP 진행 중',
-        TimerMode.forTime => 'For Time 진행 중',
-        _ => '${step.label ?? '운동'}$round',
-      },
-      Phase.rest when _mode == TimerMode.rest => '휴식 중',
-      Phase.rest => '휴식$round',
-      Phase.setRest => '세트 휴식 · ${step.set}/${step.totalSets}세트 완료',
-      Phase.warmup || Phase.cooldown => step.phase.label,
-    };
+  RunnerStatus? _noticedStatus;
+
+  /// Progress for the notification shade (Android).
+  void _pushNotice() {
+    if (_runner.isFinished) return;
+    _noticedStatus = _runner.status;
+    final step = _runner.current;
+    final steps = _runner.steps;
+    final prepMs = steps.first.phase == Phase.prepare ? steps.first.durationMs! : 0;
+    final remaining = _runner.stepRemainingMs;
+    final next = _runner.next;
+    final phase = step.phase == Phase.work && step.label != null && _isMultiStep
+        ? step.label!
+        : _phaseTitle(step);
+    final round = step.totalRounds > 0 && step.phase != Phase.prepare
+        ? ' · 라운드 ${step.round}/${step.totalRounds}'
+        : '';
+    final details = [
+      widget.config.name,
+      if (step.totalSets > 1) '세트 ${step.set}/${step.totalSets}',
+      if (_mode == TimerMode.amrap && step.phase == Phase.work) '완료 ${_runner.amrapRounds}라운드',
+      if (next != null) '다음 ${_describe(next)}' else if (step.phase != Phase.prepare) '마지막 구간',
+    ];
+    BackgroundSession.show(
+      WorkoutNotice(
+        title: '$phase$round',
+        text: details.join(' · '),
+        time: _runner.isPaused
+            ? '일시정지'
+            : step.countUp || remaining == null
+            ? formatElapsedMs(_runner.stepElapsedMs)
+            : formatRemainingMs(remaining),
+        color: AppColors.phase(step.phase),
+        segments: notificationSegments(steps),
+        positionSec: math.max(0, _runner.positionMs - prepMs) ~/ 1000,
+      ),
+    );
   }
 
   void _onRunnerChanged() {
+    // Pausing and resuming emit no cue; refresh the notification here.
+    if (_noticedStatus != null && !_runner.isFinished && _runner.status != _noticedStatus) {
+      _pushNotice();
+    }
     if (!_runner.isFinished || _handledFinish) return;
     _handledFinish = true;
     _endBackground();

@@ -8,6 +8,7 @@ import 'ui/history/history_tab.dart';
 import 'ui/routines/routines_tab.dart';
 import 'ui/settings/settings_tab.dart';
 import 'ui/timer/timer_tab.dart';
+import 'ui/widgets/aurora_background.dart';
 
 class TabataApp extends StatelessWidget {
   const TabataApp({super.key, required this.services});
@@ -59,9 +60,11 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: const [TimerTab(), RoutinesTab(), HistoryTab(), SettingsTab()],
+      body: AuroraBackground(
+        child: IndexedStack(
+          index: _index,
+          children: const [TimerTab(), RoutinesTab(), HistoryTab(), SettingsTab()],
+        ),
       ),
       bottomNavigationBar: _BottomBar(index: _index, onSelect: (i) => setState(() => _index = i)),
     );

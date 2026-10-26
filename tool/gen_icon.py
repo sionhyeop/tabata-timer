@@ -30,21 +30,24 @@ SHADOW = "#0B1E66"
 # All geometry on a 1024 canvas, before any adaptive-icon scaling.
 LAYOUT = {
     "cx": 512,
-    "cy": 456,  # ring center; puts the whole mark's box at the canvas center
+    # Ring center sits above the canvas center so the visual mass — dense
+    # wordmark on top, open ring below — lands just under the middle
+    # (measured centroid ≈ 516 of 1024); the digits read as centered.
+    "cy": 482,
     "ring_r": 320,
     "ring_w": 58,
     "gap_deg": 112,  # opening at the top, closed by the wordmark
     "seg_gap": 26,  # visible space between ring segments
     "skew": -9,  # degrees of forward lean for text and digits
-    "word_h": 84,
-    "word_stroke": 30,
-    "word_widths": {"T": 62, "I": 0, "M": 78, "E": 52, "R": 56},
-    "word_space": 42,
-    "digit_w": 92,
-    "digit_h": 176,
+    "word_h": 78,
+    "word_stroke": 28,
+    "word_widths": {"T": 58, "I": 0, "M": 72, "E": 48, "R": 52},
+    "word_space": 40,
+    "digit_w": 98,
+    "digit_h": 188,
     "digit_gap": 26,
-    "digit_stroke": 32,
-    "digit_dy": 36,  # digits center below the ring center
+    "digit_stroke": 34,
+    "digit_dy": 34,  # digits center below the ring center
     "text": "0:20",
 }
 

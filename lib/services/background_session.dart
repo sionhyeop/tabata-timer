@@ -1,15 +1,23 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
+import 'workout_notice.dart';
+
 /// Keeps a workout running on Android while the screen is off or another
-/// app (e.g. music) is in front: a foreground service with a wake lock and
-/// an ongoing notification showing the current interval.
+/// app (e.g. music) is in front: a foreground service with a wake lock, and
+/// an ongoing notification with the workout's progress bar.
 ///
 /// iOS needs no service; CuePlayer holds the audio session instead.
 abstract final class BackgroundSession {
   static bool get _supported => !kIsWeb && Platform.isAndroid;
+
+  /// Must match WorkoutNotification.kt: the progress notification reuses
+  /// this id to replace the service's own notification.
+  static const _serviceId = 120;
+  static const _notice = MethodChannel('tabata_timer/workout_notification');
 
   static void init() {
     if (!_supported) return;
@@ -46,14 +54,15 @@ abstract final class BackgroundSession {
   static Future<void> start({required String title, required String text}) async {
     if (!_supported) return;
     try {
-      if (await FlutterForegroundTask.isRunningService) {
-        await FlutterForegroundTask.updateService(notificationTitle: title, notificationText: text);
-      } else {
+      if (!await FlutterForegroundTask.isRunningService) {
         await FlutterForegroundTask.startService(
-          serviceId: 120,
+          serviceId: _serviceId,
           serviceTypes: [ForegroundServiceTypes.mediaPlayback],
           notificationTitle: title,
           notificationText: text,
+          notificationIcon: const NotificationIcon(
+            metaDataName: 'com.tabatatimer.tabata_timer.WORKOUT_ICON',
+          ),
         );
       }
     } catch (e) {
@@ -61,14 +70,13 @@ abstract final class BackgroundSession {
     }
   }
 
-  static Future<void> update(String text) async {
+  /// Replaces the service notification with the current progress.
+  static Future<void> show(WorkoutNotice notice) async {
     if (!_supported) return;
     try {
-      if (await FlutterForegroundTask.isRunningService) {
-        await FlutterForegroundTask.updateService(notificationText: text);
-      }
+      await _notice.invokeMethod<void>('show', notice.toMap());
     } catch (e) {
-      debugPrint('BackgroundSession: update failed: $e');
+      debugPrint('BackgroundSession: notice failed: $e');
     }
   }
 
@@ -78,6 +86,8 @@ abstract final class BackgroundSession {
       if (await FlutterForegroundTask.isRunningService) {
         await FlutterForegroundTask.stopService();
       }
+      // A progress update racing the stop would otherwise linger.
+      await _notice.invokeMethod<void>('cancel');
     } catch (e) {
       debugPrint('BackgroundSession: stop failed: $e');
     }

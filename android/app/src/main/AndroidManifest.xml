@@ -32,6 +32,10 @@
         </activity>
         <!-- Workout timer foreground service (flutter_foreground_task); it plays the
              interval cues, hence mediaPlayback. Don't rename. -->
+        <!-- Icon for the service's first notification, before the progress one replaces it. -->
+        <meta-data
+            android:name="com.tabatatimer.tabata_timer.WORKOUT_ICON"
+            android:resource="@drawable/ic_stat_workout" />
         <service
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
             android:foregroundServiceType="mediaPlayback"

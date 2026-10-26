@@ -11,6 +11,7 @@ import 'package:tabata_timer/app.dart';
 import 'package:tabata_timer/data/app_scope.dart';
 import 'package:tabata_timer/models/timer_mode.dart';
 import 'package:tabata_timer/models/workout_record.dart';
+import 'package:tabata_timer/ui/widgets/aurora_background.dart';
 import 'package:tabata_timer/ui/workout/summary_page.dart';
 
 void main() {
@@ -27,6 +28,8 @@ void main() {
   }
 
   testWidgets('screens', (tester) async {
+    // A still frame; the endless glow animation would never settle.
+    AuroraBackground.motion = false;
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     final services = AppServices(prefs);

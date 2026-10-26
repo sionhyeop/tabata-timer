@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'data/app_scope.dart';
+import 'services/background_session.dart';
 import 'theme/app_colors.dart';
 
 Future<void> main() async {
@@ -21,6 +22,7 @@ Future<void> main() async {
     ),
   );
 
+  BackgroundSession.init();
   final prefs = await SharedPreferences.getInstance();
   final services = AppServices(prefs);
   unawaited(services.cues.init());

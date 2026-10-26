@@ -145,7 +145,7 @@ class ScreenHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 0, 16),
+      padding: const EdgeInsets.fromLTRB(4, 10, 0, 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [

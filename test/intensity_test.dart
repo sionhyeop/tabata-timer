@@ -4,6 +4,7 @@ import 'package:tabata_timer/engine/intensity.dart';
 import 'package:tabata_timer/models/interval_step.dart';
 import 'package:tabata_timer/models/timer_mode.dart';
 import 'package:tabata_timer/models/workout_config.dart';
+import 'package:tabata_timer/ui/widgets/work_rest_card.dart';
 
 IntensityLevel? presetLevel(String id) =>
     estimateIntensity(defaultRoutines.firstWhere((r) => r.id == id));
@@ -69,5 +70,16 @@ void main() {
       expect(face(Phase.work, mode: TimerMode.forTime, remainingMs: null), '💪');
       expect(face(Phase.rest, mode: TimerMode.rest, remainingMs: 4000), '💪');
     });
+  });
+
+  test('work:rest ratio label', () {
+    expect(ratioLabel(20, 10), '2 : 1');
+    expect(ratioLabel(40, 20), '2 : 1');
+    expect(ratioLabel(30, 30), '1 : 1');
+    expect(ratioLabel(45, 15), '3 : 1');
+    expect(ratioLabel(25, 10), '5 : 2');
+    expect(ratioLabel(37, 13), '2.8 : 1');
+    expect(ratioLabel(13, 37), '1 : 2.8');
+    expect(ratioLabel(20, 0), '휴식 없음');
   });
 }

@@ -2,13 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../../data/app_scope.dart';
 import '../../models/workout_config.dart';
+import '../../services/background_session.dart';
 import 'workout_page.dart';
 
 /// Opens the full-screen workout for [config]. Routines are remembered for
 /// the "최근 루틴" banner.
-Future<void> launchWorkout(BuildContext context, WorkoutConfig config, {bool isRoutine = false}) {
+Future<void> launchWorkout(
+  BuildContext context,
+  WorkoutConfig config, {
+  bool isRoutine = false,
+}) async {
   if (isRoutine) AppScope.of(context).routines.markUsed(config.id);
-  return Navigator.of(context, rootNavigator: true).push(
+  final navigator = Navigator.of(context, rootNavigator: true);
+  // First workout only: lets the running timer show in the notification
+  // shade while the app is in the background.
+  await BackgroundSession.ensureNotificationPermission();
+  await navigator.push(
     PageRouteBuilder<void>(
       pageBuilder: (_, _, _) => WorkoutPage(config: config),
       transitionDuration: const Duration(milliseconds: 280),

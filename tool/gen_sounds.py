@@ -44,14 +44,20 @@ def write(name, samples):
         )
 
 
-# 3-2-1 countdown: short neutral beep.
-write("countdown.wav", tone(1000, 120))
+# Every running second: a soft, short "삐-" that sits under music.
+write("tick.wav", tone(1000, 90, volume=0.32))
 
-# Work starts: long, high, unmistakable.
-write("work.wav", tone(1568, 500, volume=0.65, fade_ms=20))
+# Final 3-2-1: higher and brighter so the end is unmistakable.
+write("countdown.wav", tone(1320, 150, volume=0.6))
 
-# Rest starts: two descending notes.
-write("rest.wav", tone(988, 160) + silence(40) + tone(659, 260, fade_ms=20))
+# Interval over → work starts: a long, high "삐---".
+write("work.wav", tone(1568, 650, volume=0.65, fade_ms=30))
+
+# Interval over → rest starts: a long, lower "삐---".
+write("rest.wav", tone(880, 650, volume=0.6, fade_ms=30))
+
+# Keeps the iOS audio session alive in the background between cues.
+write("silence.wav", silence(1000))
 
 # Workout complete: rising arpeggio (C6 E6 G6 C7).
 write(

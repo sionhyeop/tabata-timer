@@ -15,15 +15,15 @@
   </defs>
   <rect width="1024" height="1024" fill="url(#bg)"/>
   <rect width="1024" height="1024" fill="url(#shine)"/>
-  <g filter="url(#shadow)">
-    <path d="M559.8 215.8 A300.0 300.0 0 0 1 687.6 268.8" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
-    <path d="M755.2 336.4 A300.0 300.0 0 0 1 808.2 464.2" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
-    <path d="M808.2 559.8 A300.0 300.0 0 0 1 755.2 687.6" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
-    <path d="M687.6 755.2 A300.0 300.0 0 0 1 559.8 808.2" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
-    <path d="M464.2 808.2 A300.0 300.0 0 0 1 336.4 755.2" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
-    <path d="M268.8 687.6 A300.0 300.0 0 0 1 215.8 559.8" stroke="#fff" stroke-opacity="1" stroke-width="66.0" stroke-linecap="round" fill="none"/>
-    <path d="M215.8 464.2 A300.0 300.0 0 0 1 268.8 336.4" stroke="#fff" stroke-opacity="0.38" stroke-width="66.0" stroke-linecap="round" fill="none"/>
-    <path d="M336.4 268.8 A300.0 300.0 0 0 1 464.2 215.8" stroke="#fff" stroke-opacity="0.38" stroke-width="66.0" stroke-linecap="round" fill="none"/>
-    <path d="M572.0 330.0 L410.0 556.0 L490.0 556.0 L450.0 694.0 L614.0 466.0 L540.0 466.0 Z" fill="#fff" stroke="#fff" stroke-width="22.0" stroke-linejoin="round"/>
-  </g>
+  <g filter="url(#shadow)"><g transform="translate(512 512) scale(1.0) translate(-512 -512)">
+    <path d="M798.4 313.3 A320.0 320.0 0 0 1 826.6 397.6" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M831.0 481.2 A320.0 320.0 0 0 1 811.8 568.0" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M772.5 641.9 A320.0 320.0 0 0 1 711.3 706.4" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M639.5 749.5 A320.0 320.0 0 0 1 553.9 773.2" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M470.1 773.2 A320.0 320.0 0 0 1 384.5 749.5" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M312.7 706.4 A320.0 320.0 0 0 1 251.5 641.9" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M212.2 568.0 A320.0 320.0 0 0 1 193.0 481.2" stroke="#fff" stroke-opacity="0.38" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M197.4 397.6 A320.0 320.0 0 0 1 225.6 313.3" stroke="#fff" stroke-opacity="0.38" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <g transform="translate(512 277.05827088936104) skewX(-9) translate(-512 -277.05827088936104)"><path d="M304.0 235.05827088936104 L366.0 235.05827088936104 M335.0 235.05827088936104 L335.0 319.05827088936104 M408.0 235.05827088936104 L408.0 319.05827088936104 M450.0 319.05827088936104 L450.0 235.05827088936104 L489.0 285.458270889361 L528.0 235.05827088936104 L528.0 319.05827088936104 M622.0 235.05827088936104 L570.0 235.05827088936104 L570.0 319.05827088936104 L622.0 319.05827088936104 M570.0 277.05827088936104 L612.64 277.05827088936104 M664.0 319.05827088936104 L664.0 235.05827088936104 L697.32 235.05827088936104 A22.68 22.68 0 0 1 697.32 280.41827088936105 L664.0 280.41827088936105 M693.32 280.41827088936105 L720.0 319.05827088936104" stroke="#fff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g transform="translate(512 492) skewX(-9) translate(-512 -492)"><path d="M342.6 404.0 L390.6 404.0 M412.6 426.0 L412.6 470.0 M412.6 514.0 L412.6 558.0 M342.6 580.0 L390.6 580.0 M320.6 514.0 L320.6 558.0 M320.6 426.0 L320.6 470.0 M515.4 404.0 L563.4 404.0 M585.4 426.0 L585.4 470.0 M515.4 492.0 L563.4 492.0 M493.4 514.0 L493.4 558.0 M515.4 580.0 L563.4 580.0 M633.4 404.0 L681.4 404.0 M703.4 426.0 L703.4 470.0 M703.4 514.0 L703.4 558.0 M633.4 580.0 L681.4 580.0 M611.4 514.0 L611.4 558.0 M611.4 426.0 L611.4 470.0 " stroke="#fff" stroke-width="32" stroke-linecap="round" fill="none"/><circle cx="453.0" cy="456.8" r="19.2" fill="#fff"/><circle cx="453.0" cy="527.2" r="19.2" fill="#fff"/></g>
+  </g></g>
 </svg>

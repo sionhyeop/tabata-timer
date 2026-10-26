@@ -13,6 +13,7 @@ import '../../models/interval_step.dart';
 import '../../models/timer_mode.dart';
 import '../../models/workout_config.dart';
 import '../../models/workout_record.dart';
+import '../../services/background_session.dart';
 import '../../services/calorie.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
@@ -55,25 +56,57 @@ class _WorkoutPageState extends State<WorkoutPage> {
       onCue: _onCue,
     )..addListener(_onRunnerChanged);
     if (settings.keepScreenOn) _setWakelock(true);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _runner.start());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Keep running with the screen off or behind a music app.
+      await _services.cues.beginWorkout();
+      await BackgroundSession.start(title: widget.config.name, text: '곧 시작해요');
+      if (mounted) _runner.start();
+    });
   }
 
   @override
   void dispose() {
     _setWakelock(false);
+    _endBackground();
     _services.cues.stopVoice();
     _runner.dispose();
     super.dispose();
   }
 
+  void _endBackground() {
+    BackgroundSession.stop();
+    _services.cues.endWorkout();
+  }
+
   void _setWakelock(bool on) =>
       WakelockPlus.toggle(enable: on).catchError((Object e) => debugPrint('wakelock: $e'));
 
-  void _onCue(WorkoutCue cue) => _services.cues.handle(cue, mode: _mode, muted: _muted);
+  void _onCue(WorkoutCue cue) {
+    _services.cues.handle(cue, mode: _mode, muted: _muted);
+    if (cue.type == CueType.stepStart) BackgroundSession.update(_notificationText(cue.step!));
+  }
+
+  /// One line for the ongoing notification while the app is in background.
+  String _notificationText(IntervalStep step) {
+    final round = step.totalRounds > 0 ? ' · 라운드 ${step.round}/${step.totalRounds}' : '';
+    return switch (step.phase) {
+      Phase.prepare => '곧 시작해요',
+      Phase.work => switch (_mode) {
+        TimerMode.amrap => 'AMRAP 진행 중',
+        TimerMode.forTime => 'For Time 진행 중',
+        _ => '${step.label ?? '운동'}$round',
+      },
+      Phase.rest when _mode == TimerMode.rest => '휴식 중',
+      Phase.rest => '휴식$round',
+      Phase.setRest => '세트 휴식 · ${step.set}/${step.totalSets}세트 완료',
+      Phase.warmup || Phase.cooldown => step.phase.label,
+    };
+  }
 
   void _onRunnerChanged() {
     if (!_runner.isFinished || _handledFinish) return;
     _handledFinish = true;
+    _endBackground();
 
     if (_mode == TimerMode.rest) {
       // Rest timer stays open with "다시 / 닫기"; it is not logged.
@@ -423,8 +456,19 @@ class _WorkoutPageState extends State<WorkoutPage> {
         ],
       );
     }
-    final isMain = step.phase != Phase.prepare;
-    if (isMain && _mode == TimerMode.amrap) {
+    if (step.phase == Phase.prepare) {
+      return _GlassButton(
+        label: '바로 시작',
+        icon: Icons.fast_forward_rounded,
+        solid: true,
+        foreground: base,
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          _runner.skipNext();
+        },
+      );
+    }
+    if (_mode == TimerMode.amrap) {
       return _RoundCounter(
         rounds: _runner.amrapRounds,
         color: base,
@@ -435,7 +479,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
         onUndo: _runner.undoRound,
       );
     }
-    if (isMain && _mode == TimerMode.forTime) {
+    if (_mode == TimerMode.forTime) {
       final laps = _runner.laps;
       return Row(
         children: [
@@ -462,7 +506,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
         ],
       );
     }
-    if (isMain && _mode == TimerMode.rest) {
+    if (_mode == TimerMode.rest) {
       return _GlassButton(
         label: '+15초',
         icon: Icons.more_time_rounded,

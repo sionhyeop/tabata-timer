@@ -1,6 +1,16 @@
 import '../models/interval_step.dart';
 
-enum CueType { stepStart, countdown, halfway, oneMinuteLeft, finished }
+enum CueType {
+  stepStart,
+
+  /// Every passing second that isn't part of the final countdown, so the
+  /// user can hear the timer running.
+  tick,
+  countdown,
+  halfway,
+  oneMinuteLeft,
+  finished,
+}
 
 /// Something the user should hear or feel. Emitted by [WorkoutRunner],
 /// rendered by `CuePlayer` according to the user's settings.

@@ -5,10 +5,16 @@ class AppSettings {
     this.vibrationOn = true,
     this.countdownBeeps = 3,
     this.halfwayAlert = true,
-    this.prepareSec = 10,
+    this.prepareSec = 5,
     this.keepScreenOn = true,
     this.weightKg = 65,
+    this.tickOn = true,
+    this.voiceName,
+    this.voiceLocale,
   });
+
+  /// Bumped when a default changes in a way stored settings should follow.
+  static const schemaVersion = 2;
 
   final bool soundOn;
   final bool voiceOn;
@@ -25,6 +31,13 @@ class AppSettings {
   /// Used only for the calorie estimate.
   final int weightKg;
 
+  /// A soft beep every second while the timer runs.
+  final bool tickOn;
+
+  /// Chosen TTS voice; null picks the best Korean voice on the device.
+  final String? voiceName;
+  final String? voiceLocale;
+
   AppSettings copyWith({
     bool? soundOn,
     bool? voiceOn,
@@ -34,6 +47,9 @@ class AppSettings {
     int? prepareSec,
     bool? keepScreenOn,
     int? weightKg,
+    bool? tickOn,
+    (String, String)? voice,
+    bool clearVoice = false,
   }) => AppSettings(
     soundOn: soundOn ?? this.soundOn,
     voiceOn: voiceOn ?? this.voiceOn,
@@ -43,6 +59,9 @@ class AppSettings {
     prepareSec: prepareSec ?? this.prepareSec,
     keepScreenOn: keepScreenOn ?? this.keepScreenOn,
     weightKg: weightKg ?? this.weightKg,
+    tickOn: tickOn ?? this.tickOn,
+    voiceName: clearVoice ? null : (voice?.$1 ?? voiceName),
+    voiceLocale: clearVoice ? null : (voice?.$2 ?? voiceLocale),
   );
 
   Map<String, dynamic> toJson() => {
@@ -54,19 +73,30 @@ class AppSettings {
     'prepareSec': prepareSec,
     'keepScreenOn': keepScreenOn,
     'weightKg': weightKg,
+    'tickOn': tickOn,
+    'voiceName': voiceName,
+    'voiceLocale': voiceLocale,
+    'schema': schemaVersion,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     const d = AppSettings();
+    final schema = json['schema'] as int? ?? 1;
+    var prepareSec = json['prepareSec'] as int? ?? d.prepareSec;
+    // v1 defaulted to 10s, which proved too long; move untouched values.
+    if (schema < 2 && prepareSec == 10) prepareSec = d.prepareSec;
     return AppSettings(
       soundOn: json['soundOn'] as bool? ?? d.soundOn,
       voiceOn: json['voiceOn'] as bool? ?? d.voiceOn,
       vibrationOn: json['vibrationOn'] as bool? ?? d.vibrationOn,
       countdownBeeps: json['countdownBeeps'] as int? ?? d.countdownBeeps,
       halfwayAlert: json['halfwayAlert'] as bool? ?? d.halfwayAlert,
-      prepareSec: json['prepareSec'] as int? ?? d.prepareSec,
+      prepareSec: prepareSec,
       keepScreenOn: json['keepScreenOn'] as bool? ?? d.keepScreenOn,
       weightKg: json['weightKg'] as int? ?? d.weightKg,
+      tickOn: json['tickOn'] as bool? ?? d.tickOn,
+      voiceName: json['voiceName'] as String?,
+      voiceLocale: json['voiceLocale'] as String?,
     );
   }
 }

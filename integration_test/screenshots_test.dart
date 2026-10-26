@@ -132,7 +132,7 @@ void main() {
     await tester.tap(find.text('기록하기'));
     await tester.pumpAndSettle();
     expect(services.history.records.firstWhere((r) => !r.id.startsWith('seed')).rpe, 3);
-    services.settings.update((s) => s.copyWith(prepareSec: 10));
+    services.settings.update((s) => s.copyWith(prepareSec: 5));
     services.setup.update(tabata);
     await tester.pumpAndSettle();
 
@@ -147,6 +147,13 @@ void main() {
     await tester.tap(find.text('설정'));
     await tester.pumpAndSettle();
     await shot(tester, '12_settings');
+
+    await tester.tap(find.text('목소리'));
+    await wait(tester, 1500);
+    await tester.pumpAndSettle();
+    await shot(tester, '13_voice_sheet');
+    await tester.tapAt(const Offset(20, 60)); // dismiss the sheet
+    await tester.pumpAndSettle();
 
     await prefs.clear();
   });

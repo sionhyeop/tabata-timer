@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <defs>
   </defs>
-  <g>
-    <path d="M551.2 269.1 A246.0 246.0 0 0 1 656.0 312.6" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
-    <path d="M711.4 368.0 A246.0 246.0 0 0 1 754.9 472.8" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
-    <path d="M754.9 551.2 A246.0 246.0 0 0 1 711.4 656.0" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
-    <path d="M656.0 711.4 A246.0 246.0 0 0 1 551.2 754.9" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
-    <path d="M472.8 754.9 A246.0 246.0 0 0 1 368.0 711.4" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
-    <path d="M312.6 656.0 A246.0 246.0 0 0 1 269.1 551.2" stroke="#fff" stroke-opacity="1" stroke-width="54.1" stroke-linecap="round" fill="none"/>
-    <path d="M269.1 472.8 A246.0 246.0 0 0 1 312.6 368.0" stroke="#fff" stroke-opacity="0.38" stroke-width="54.1" stroke-linecap="round" fill="none"/>
-    <path d="M368.0 312.6 A246.0 246.0 0 0 1 472.8 269.1" stroke="#fff" stroke-opacity="0.38" stroke-width="54.1" stroke-linecap="round" fill="none"/>
-    <path d="M561.2 362.8 L428.4 548.1 L494.0 548.1 L461.2 661.2 L595.6 474.3 L535.0 474.3 Z" fill="#fff" stroke="#fff" stroke-width="18.0" stroke-linejoin="round"/>
-  </g>
+  <g><g transform="translate(512 512) scale(0.8) translate(-512 -512)">
+    <path d="M798.4 313.3 A320.0 320.0 0 0 1 826.6 397.6" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M831.0 481.2 A320.0 320.0 0 0 1 811.8 568.0" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M772.5 641.9 A320.0 320.0 0 0 1 711.3 706.4" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M639.5 749.5 A320.0 320.0 0 0 1 553.9 773.2" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M470.1 773.2 A320.0 320.0 0 0 1 384.5 749.5" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M312.7 706.4 A320.0 320.0 0 0 1 251.5 641.9" stroke="#fff" stroke-opacity="1" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M212.2 568.0 A320.0 320.0 0 0 1 193.0 481.2" stroke="#fff" stroke-opacity="0.38" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <path d="M197.4 397.6 A320.0 320.0 0 0 1 225.6 313.3" stroke="#fff" stroke-opacity="0.38" stroke-width="58.0" stroke-linecap="round" fill="none"/>
+    <g transform="translate(512 277.05827088936104) skewX(-9) translate(-512 -277.05827088936104)"><path d="M304.0 235.05827088936104 L366.0 235.05827088936104 M335.0 235.05827088936104 L335.0 319.05827088936104 M408.0 235.05827088936104 L408.0 319.05827088936104 M450.0 319.05827088936104 L450.0 235.05827088936104 L489.0 285.458270889361 L528.0 235.05827088936104 L528.0 319.05827088936104 M622.0 235.05827088936104 L570.0 235.05827088936104 L570.0 319.05827088936104 L622.0 319.05827088936104 M570.0 277.05827088936104 L612.64 277.05827088936104 M664.0 319.05827088936104 L664.0 235.05827088936104 L697.32 235.05827088936104 A22.68 22.68 0 0 1 697.32 280.41827088936105 L664.0 280.41827088936105 M693.32 280.41827088936105 L720.0 319.05827088936104" stroke="#fff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g transform="translate(512 492) skewX(-9) translate(-512 -492)"><path d="M342.6 404.0 L390.6 404.0 M412.6 426.0 L412.6 470.0 M412.6 514.0 L412.6 558.0 M342.6 580.0 L390.6 580.0 M320.6 514.0 L320.6 558.0 M320.6 426.0 L320.6 470.0 M515.4 404.0 L563.4 404.0 M585.4 426.0 L585.4 470.0 M515.4 492.0 L563.4 492.0 M493.4 514.0 L493.4 558.0 M515.4 580.0 L563.4 580.0 M633.4 404.0 L681.4 404.0 M703.4 426.0 L703.4 470.0 M703.4 514.0 L703.4 558.0 M633.4 580.0 L681.4 580.0 M611.4 514.0 L611.4 558.0 M611.4 426.0 L611.4 470.0 " stroke="#fff" stroke-width="32" stroke-linecap="round" fill="none"/><circle cx="453.0" cy="456.8" r="19.2" fill="#fff"/><circle cx="453.0" cy="527.2" r="19.2" fill="#fff"/></g>
+  </g></g>
 </svg>

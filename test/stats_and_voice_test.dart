@@ -132,18 +132,25 @@ void main() {
 
     test('circuit flow', () {
       expect(say(0), '준비하세요. 첫 운동은 스쿼트');
-      expect(say(1), '스쿼트');
+      expect(say(1), '스쿼트 시작');
       expect(say(2), '휴식. 다음은 버피');
-      expect(say(3), '버피');
+      expect(say(3), '버피 시작');
       expect(say(4), '세트 휴식. 다음은 2세트');
-      expect(say(5), '2세트 시작. 스쿼트');
-      expect(say(steps.length - 1), '마지막 라운드. 버피');
+      expect(say(5), '2세트. 스쿼트 시작');
+      expect(say(steps.length - 1), '마지막 라운드! 버피 시작');
+    });
+
+    test('plain intervals say 운동 시작 / 휴식', () {
+      final tabata = buildSteps(WorkoutConfig.defaults(TimerMode.tabata));
+      expect(stepAnnouncement(tabata[0], tabata[1], TimerMode.tabata), '운동 시작');
+      expect(stepAnnouncement(tabata[1], tabata[2], TimerMode.tabata), '휴식');
+      expect(stepAnnouncement(tabata.last, null, TimerMode.tabata), '마지막 라운드! 운동 시작');
     });
 
     test('emom rounds and rest timer', () {
       final emom = buildSteps(WorkoutConfig.defaults(TimerMode.emom).copyWith(rounds: 3));
-      expect(stepAnnouncement(emom[0], emom[1], TimerMode.emom), '1라운드');
-      expect(stepAnnouncement(emom[2], null, TimerMode.emom), '마지막 라운드');
+      expect(stepAnnouncement(emom[0], emom[1], TimerMode.emom), '1라운드 시작');
+      expect(stepAnnouncement(emom[2], null, TimerMode.emom), '마지막 라운드 시작');
       final rest = buildSteps(WorkoutConfig.defaults(TimerMode.rest)).single;
       expect(stepAnnouncement(rest, null, TimerMode.rest), '휴식 시작');
     });

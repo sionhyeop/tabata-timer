@@ -54,6 +54,7 @@ class WorkoutRunner extends ChangeNotifier {
   RunnerStatus _status = RunnerStatus.ready;
   int _index = 0;
   int _lastCountdownSecond = -1;
+  int _lastElapsedSecond = 0;
   bool _halfwayFired = false;
   bool _minuteFired = false;
   bool _completed = false;
@@ -286,6 +287,7 @@ class WorkoutRunner extends ChangeNotifier {
     _index = i;
     _halfwayFired = false;
     _minuteFired = false;
+    _lastElapsedSecond = 0;
     // The step-start sound covers the first second; beep only after that.
     _lastCountdownSecond = _remainingSecond(activeMs + _offsetMs) ?? -1;
     _emit(WorkoutCue(CueType.stepStart, step: current, next: next));
@@ -299,13 +301,23 @@ class WorkoutRunner extends ChangeNotifier {
 
   void _checkCues(int pos) {
     final d = current.durationMs;
-    if (d == null) return;
+    if (d == null) {
+      // Open-ended step: tick on elapsed seconds.
+      final elapsedSecond = (pos - _starts[_index]!) ~/ 1000;
+      if (elapsedSecond > _lastElapsedSecond) {
+        _lastElapsedSecond = elapsedSecond;
+        _emit(WorkoutCue(CueType.tick, step: current));
+      }
+      return;
+    }
     final remaining = d - (pos - _starts[_index]!);
     final second = (remaining / 1000).ceil();
     if (second != _lastCountdownSecond) {
       _lastCountdownSecond = second;
       if (second >= 1 && second <= countdownBeeps) {
         _emit(WorkoutCue(CueType.countdown, step: current, secondsLeft: second));
+      } else if (second >= 1) {
+        _emit(WorkoutCue(CueType.tick, step: current, secondsLeft: second));
       }
     }
     // Late events (e.g. after returning from background) are dropped

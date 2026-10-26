@@ -71,8 +71,8 @@ class ConfigField {
   }
 }
 
-/// Lays fields out two per row; a lone field gets the full width and a
-/// bigger number.
+/// Lays fields out two per row as compact [− value +] tiles; a lone field
+/// gets the full width and a bigger number.
 class ConfigGrid extends StatelessWidget {
   const ConfigGrid({super.key, required this.fields});
 
@@ -89,9 +89,11 @@ class ConfigGrid extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(child: ValueTile(field: fields[i])),
+              Expanded(child: ValueTile(field: fields[i], compact: true)),
               const SizedBox(width: 10),
-              Expanded(child: hasPair ? ValueTile(field: fields[i + 1]) : const SizedBox()),
+              Expanded(
+                child: hasPair ? ValueTile(field: fields[i + 1], compact: true) : const SizedBox(),
+              ),
             ],
           ),
         ),
@@ -103,83 +105,138 @@ class ConfigGrid extends StatelessWidget {
 }
 
 class ValueTile extends StatelessWidget {
-  const ValueTile({super.key, required this.field, this.large = false});
+  const ValueTile({
+    super.key,
+    required this.field,
+    this.large = false,
+    this.bare = false,
+    this.compact = false,
+  });
 
   final ConfigField field;
   final bool large;
 
+  /// Value between the − and + buttons on one line, for secondary fields.
+  final bool compact;
+
+  /// Content only, for tiles that sit inside a shared card.
+  final bool bare;
+
   @override
   Widget build(BuildContext context) {
+    final content = _content(context);
+    if (bare) return content;
+    return AppCard(padding: EdgeInsets.fromLTRB(16, 14, 16, large ? 18 : 14), child: content);
+  }
+
+  Widget _content(BuildContext context) {
     final f = field;
-    return AppCard(
-      padding: EdgeInsets.fromLTRB(16, 14, 16, large ? 18 : 14),
-      child: Column(
+    final label = Row(
+      children: [
+        if (f.dot != null) ...[
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: f.dot, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+        ],
+        Text(
+          f.label,
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+    final minus = _StepButton(
+      icon: Icons.remove,
+      label: '${f.label} 줄이기',
+      enabled: f.value > f.min,
+      onStep: f.decrement,
+    );
+    final plus = _StepButton(
+      icon: Icons.add,
+      label: '${f.label} 늘리기',
+      enabled: f.value < f.max,
+      onStep: f.increment,
+    );
+    if (compact) {
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          label,
+          const SizedBox(height: 8),
           Row(
             children: [
-              if (f.dot != null) ...[
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(color: f.dot, shape: BoxShape.circle),
-                ),
-                const SizedBox(width: 6),
-              ],
-              Text(
-                f.label,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+              minus,
+              Expanded(
+                child: Semantics(
+                  button: true,
+                  label: '${f.label} ${f.display}, 탭하여 직접 입력',
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => _openPicker(context),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          f.display,
+                          style: const TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                            fontFeatures: tabularFigures,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
+              plus,
             ],
           ),
-          const SizedBox(height: 6),
-          Semantics(
-            button: true,
-            label: '${f.label} ${f.display}, 탭하여 직접 입력',
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () => _openPicker(context),
-              child: SizedBox(
-                width: double.infinity,
-                child: Text(
-                  f.display,
-                  textAlign: large ? TextAlign.center : TextAlign.start,
-                  style: TextStyle(
-                    fontSize: large ? 56 : 36,
-                    fontWeight: FontWeight.w800,
-                    height: 1.15,
-                    fontFeatures: tabularFigures,
-                    color: AppColors.textPrimary,
-                  ),
+        ],
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        label,
+        const SizedBox(height: 6),
+        Semantics(
+          button: true,
+          label: '${f.label} ${f.display}, 탭하여 직접 입력',
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => _openPicker(context),
+            child: SizedBox(
+              width: double.infinity,
+              child: Text(
+                f.display,
+                textAlign: large ? TextAlign.center : TextAlign.start,
+                style: TextStyle(
+                  fontSize: large ? 56 : 36,
+                  fontWeight: FontWeight.w800,
+                  height: 1.15,
+                  fontFeatures: tabularFigures,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ),
           ),
-          SizedBox(height: large ? 14 : 10),
-          Row(
-            mainAxisAlignment: large ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
-            children: [
-              _StepButton(
-                icon: Icons.remove,
-                label: '${f.label} 줄이기',
-                enabled: f.value > f.min,
-                onStep: f.decrement,
-              ),
-              if (large) const SizedBox(width: 40),
-              _StepButton(
-                icon: Icons.add,
-                label: '${f.label} 늘리기',
-                enabled: f.value < f.max,
-                onStep: f.increment,
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+        SizedBox(height: large ? 14 : 10),
+        Row(
+          mainAxisAlignment: large ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
+          children: [minus, if (large) const SizedBox(width: 40), plus],
+        ),
+      ],
     );
   }
 

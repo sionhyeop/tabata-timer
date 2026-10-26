@@ -6,6 +6,7 @@ import '../../models/app_settings.dart';
 import '../../theme/app_colors.dart';
 import '../widgets/common.dart';
 import '../widgets/value_tile.dart';
+import 'voice_sheet.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -39,6 +40,17 @@ class SettingsTab extends StatelessWidget {
                     subtitle: '“운동”, “휴식, 다음은 버피”처럼 말해줘요',
                     value: s.voiceOn,
                     onChanged: (v) => set((s) => s.copyWith(voiceOn: v)),
+                  ),
+                  _SwitchRow(
+                    title: '매초 신호음',
+                    subtitle: '타이머가 도는 동안 1초마다 짧게 삐-',
+                    value: s.tickOn,
+                    onChanged: (v) => set((s) => s.copyWith(tickOn: v)),
+                  ),
+                  _TapRow(
+                    title: '목소리',
+                    subtitle: s.voiceName ?? '자동 · 가장 자연스러운 한국어 목소리',
+                    onTap: () => showVoiceSheet(context),
                   ),
                   _SwitchRow(
                     title: '진동',
@@ -158,7 +170,7 @@ class SettingsTab extends StatelessWidget {
               const SizedBox(height: 28),
               const Center(
                 child: Text(
-                  '타바타 타이머 1.1.0',
+                  '타바타 타이머 1.2.0',
                   style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
                 ),
               ),

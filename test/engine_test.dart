@@ -160,6 +160,33 @@ void main() {
           .toList();
       expect(starts, [Phase.work, Phase.rest]);
       expect(cues.first.next!.phase, Phase.rest);
+      // 5s work: one tick at 4s left, then the 3-2-1 countdown.
+      final ticks = cues.where((c) => c.type == CueType.tick).map((c) => c.secondsLeft);
+      expect(ticks, [4]);
+    });
+
+    test('ticks every second, without countdown if disabled', () {
+      clock = FakeClock();
+      cues = [];
+      final r = WorkoutRunner(
+        config: tiny,
+        steps: buildSteps(tiny),
+        clock: clock.call,
+        autoTick: false,
+        countdownBeeps: 0,
+        onCue: cues.add,
+      );
+      r.start();
+      advance(r, 5000);
+      expect(cues.where((c) => c.type == CueType.tick).map((c) => c.secondsLeft), [4, 3, 2, 1]);
+      expect(cues.where((c) => c.type == CueType.countdown), isEmpty);
+    });
+
+    test('open-ended for time ticks on elapsed seconds', () {
+      final r = runnerFor(WorkoutConfig.defaults(TimerMode.forTime).copyWith(workSec: 0));
+      r.start();
+      advance(r, 3500);
+      expect(cues.where((c) => c.type == CueType.tick).length, 3);
     });
 
     test('pause freezes time, resume continues', () {

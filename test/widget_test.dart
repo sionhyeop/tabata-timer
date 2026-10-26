@@ -75,7 +75,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('준비'), findsOneWidget);
-    expect(find.text('10'), findsOneWidget);
+    expect(find.text('5'), findsOneWidget);
+    expect(find.text('바로 시작'), findsOneWidget);
 
     await tester.tap(find.byTooltip('종료'));
     await tester.pumpAndSettle();

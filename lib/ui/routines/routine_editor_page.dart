@@ -8,9 +8,8 @@ import '../../models/workout_config.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/format.dart';
 import '../widgets/common.dart';
-import '../widgets/config_fields.dart';
 import '../widgets/mode_chips.dart';
-import '../widgets/value_tile.dart';
+import '../widgets/work_rest_card.dart';
 
 /// Create or edit a routine. Uses the same tiles as the Timer tab.
 class RoutineEditorPage extends StatefulWidget {
@@ -143,8 +142,9 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: ConfigGrid(
-                      fields: configFields(_config, (c) => setState(() => _config = c)),
+                    child: ConfigPanel(
+                      config: _config,
+                      onChanged: (c) => setState(() => _config = c),
                     ),
                   ),
                   Padding(

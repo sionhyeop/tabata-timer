@@ -10,10 +10,9 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
 import '../widgets/common.dart';
-import '../widgets/config_fields.dart';
 import '../widgets/intensity_meter.dart';
 import '../widgets/mode_chips.dart';
-import '../widgets/value_tile.dart';
+import '../widgets/work_rest_card.dart';
 import '../workout/launch.dart';
 
 /// Home: pick a mode, adjust a few numbers, press start.
@@ -61,7 +60,7 @@ class TimerTab extends StatelessWidget {
                       ),
                     ModeChips(selected: config.mode, onChanged: setup.selectMode),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 14),
+                      padding: const EdgeInsets.fromLTRB(24, 10, 24, 12),
                       child: Text(
                         config.mode.description,
                         style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
@@ -69,7 +68,7 @@ class TimerTab extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: ConfigGrid(fields: configFields(config, setup.update)),
+                      child: ConfigPanel(config: config, onChanged: setup.update),
                     ),
                     if (config.mode == TimerMode.rest)
                       Padding(
@@ -129,9 +128,9 @@ class _SummaryCard extends StatelessWidget {
     };
     final intensity = estimateIntensity(config);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
       child: AppCard(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         child: Row(
           children: [
             Expanded(

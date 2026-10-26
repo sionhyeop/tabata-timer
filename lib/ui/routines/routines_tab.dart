@@ -227,7 +227,7 @@ class _TitleBox extends StatelessWidget {
           ),
           if (intensity != null) ...[
             const SizedBox(width: 10),
-            IntensityMeter(level: intensity!, compact: true),
+            IntensityMeter(level: intensity!, compact: true, showBars: false),
           ],
         ],
       ),

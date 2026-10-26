@@ -3,14 +3,23 @@ import 'package:flutter/material.dart';
 import '../../engine/intensity.dart';
 import '../../theme/app_colors.dart';
 
-/// Face + label + five rising bars, read like a signal meter.
+/// Face + label, optionally followed by five rising bars read like a
+/// signal meter.
 class IntensityMeter extends StatelessWidget {
-  const IntensityMeter({super.key, required this.level, this.compact = false});
+  const IntensityMeter({
+    super.key,
+    required this.level,
+    this.compact = false,
+    this.showBars = true,
+  });
 
   final IntensityLevel level;
 
   /// Smaller variant for list cards.
   final bool compact;
+
+  /// The bars; tight spots show just the face and label.
+  final bool showBars;
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +52,10 @@ class IntensityMeter extends StatelessWidget {
                 color: compact ? AppColors.textSecondary : AppColors.textPrimary,
               ),
             ),
-            SizedBox(width: compact ? 6 : 8),
-            _Bars(level: level, compact: compact),
+            if (showBars) ...[
+              SizedBox(width: compact ? 6 : 8),
+              _Bars(level: level, compact: compact),
+            ],
           ],
         ),
       ),

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../engine/intensity.dart';
 import '../../theme/app_colors.dart';
 
-/// Face + label, optionally followed by five rising bars read like a
-/// signal meter.
+/// The effort face, optionally followed by five rising bars read like a
+/// signal meter. The level's name is for screen readers only.
 class IntensityMeter extends StatelessWidget {
   const IntensityMeter({
     super.key,
@@ -41,15 +41,6 @@ class IntensityMeter extends StatelessWidget {
                 key: ValueKey(level),
                 overflow: TextOverflow.visible,
                 style: TextStyle(fontSize: compact ? 15 : 22, height: 1.25),
-              ),
-            ),
-            SizedBox(width: compact ? 4 : 6),
-            Text(
-              level.label,
-              style: TextStyle(
-                fontSize: compact ? 13 : 15,
-                fontWeight: FontWeight.w700,
-                color: compact ? AppColors.textSecondary : AppColors.textPrimary,
               ),
             ),
             if (showBars) ...[

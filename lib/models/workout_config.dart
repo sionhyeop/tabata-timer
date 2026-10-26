@@ -81,29 +81,30 @@ class WorkoutConfig {
   };
 
   /// Short human summary, e.g. "20초 · 10초 · 8라운드".
-  /// The plan in a few label/value pairs, e.g. (운동, 20초), (휴식, 10초),
-  /// ('', 8라운드). The value is the part to emphasize.
-  List<({String label, String value})> get summaryParts {
+  /// The plan in a few pieces, e.g. (운동, 20초), (휴식, 10초), and the
+  /// repeat counts 8라운드 / 2세트 flagged [repeat] so they can be shown
+  /// as small "×8라운드" multipliers.
+  List<({String label, String value, bool repeat})> get summaryParts {
     const t = formatDurationKo;
     return switch (mode) {
       TimerMode.tabata || TimerMode.interval => [
-        (label: '운동', value: t(workSec)),
-        if (restSec > 0) (label: '휴식', value: t(restSec)),
-        (label: '', value: '$rounds라운드'),
-        if (sets > 1) (label: '', value: '$sets세트'),
+        (label: '운동', value: t(workSec), repeat: false),
+        if (restSec > 0) (label: '휴식', value: t(restSec), repeat: false),
+        (label: '', value: '$rounds라운드', repeat: true),
+        if (sets > 1) (label: '', value: '$sets세트', repeat: true),
       ],
-      TimerMode.emom => [(label: '', value: '${t(workSec)}마다'), (label: '', value: '$rounds라운드')],
-      TimerMode.amrap => [(label: '제한 시간', value: t(workSec))],
+      TimerMode.emom => [
+        (label: '', value: '${t(workSec)}마다', repeat: false),
+        (label: '', value: '$rounds라운드', repeat: true),
+      ],
+      TimerMode.amrap => [(label: '제한 시간', value: t(workSec), repeat: false)],
       TimerMode.forTime =>
-        workSec > 0 ? [(label: '타임캡', value: t(workSec))] : [(label: '', value: '타임캡 없음')],
-      TimerMode.rest => [(label: '휴식', value: t(workSec))],
+        workSec > 0
+            ? [(label: '타임캡', value: t(workSec), repeat: false)]
+            : [(label: '', value: '타임캡 없음', repeat: false)],
+      TimerMode.rest => [(label: '휴식', value: t(workSec), repeat: false)],
     };
   }
-
-  /// [summaryParts] as one line: "운동 20초 · 휴식 10초 · 8라운드".
-  String get summary =>
-      [for (final p in summaryParts) p.label.isEmpty ? p.value : '${p.label} ${p.value}']
-          .join(' · ');
 
   WorkoutConfig copyWith({
     String? id,

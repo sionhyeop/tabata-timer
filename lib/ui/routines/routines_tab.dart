@@ -235,45 +235,60 @@ class _TitleBox extends StatelessWidget {
   }
 }
 
-/// "운동 20초  휴식 10초  8라운드" with the values large; wraps between
-/// items, never inside one.
+/// "운동 20초  휴식 10초  ×8라운드 ×2세트": durations large, repeat counts
+/// small; wraps between items, never inside one.
 class _BigSummary extends StatelessWidget {
   const _BigSummary({required this.parts});
 
-  final List<({String label, String value})> parts;
+  final List<({String label, String value, bool repeat})> parts;
+
+  static const _label = TextStyle(
+    color: AppColors.textSecondary,
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+  );
+  static const _value = TextStyle(
+    color: AppColors.textPrimary,
+    fontSize: 22,
+    fontWeight: FontWeight.w800,
+    fontFeatures: tabularFigures,
+  );
+  static const _repeat = TextStyle(
+    color: AppColors.cardCaption,
+    fontSize: 15,
+    fontWeight: FontWeight.w700,
+    fontFeatures: tabularFigures,
+  );
 
   @override
   Widget build(BuildContext context) {
+    // Repeat counts travel together ("×8라운드 ×2세트"), so a wrap never
+    // separates them.
+    final repeats = [
+      for (final p in parts)
+        if (p.repeat) '×${p.value}',
+    ].join(' ');
     return Wrap(
-      spacing: 14,
+      spacing: 12,
       runSpacing: 2,
       crossAxisAlignment: WrapCrossAlignment.end,
       children: [
         for (final p in parts)
-          Text.rich(
-            TextSpan(
-              children: [
-                if (p.label.isNotEmpty)
-                  TextSpan(
-                    text: '${p.label} ',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                TextSpan(
-                  text: p.value,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    fontFeatures: tabularFigures,
-                  ),
-                ),
-              ],
+          if (!p.repeat)
+            Text.rich(
+              TextSpan(
+                children: [
+                  if (p.label.isNotEmpty) TextSpan(text: '${p.label} ', style: _label),
+                  TextSpan(text: p.value, style: _value),
+                ],
+              ),
+              maxLines: 1,
             ),
-            maxLines: 1,
+        if (repeats.isNotEmpty)
+          Padding(
+            // Sit on roughly the same baseline as the large values.
+            padding: const EdgeInsets.only(bottom: 2),
+            child: Text(repeats, style: _repeat, maxLines: 1),
           ),
       ],
     );

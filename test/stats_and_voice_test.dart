@@ -106,7 +106,9 @@ void main() {
     });
 
     test('display', () {
-      expect(field(20).display, '0:20');
+      expect(field(20).display, '20초');
+      expect(field(90).display, '1분 30초');
+      expect(field(120).display, '2분');
       expect(field(5, kind: ValueKind.count).display, '5');
       expect(
         ConfigField(

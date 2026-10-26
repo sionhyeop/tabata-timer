@@ -19,13 +19,14 @@ Future<AppServices> pumpApp(WidgetTester tester) async {
   return services;
 }
 
+// Values render as number + thin space + unit, e.g. '20\u2009초'.
 void main() {
   testWidgets('home shows tabata defaults and adjusts the total', (tester) async {
     await pumpApp(tester);
 
     expect(find.text('시작'), findsOneWidget);
-    expect(find.text('0:20'), findsOneWidget);
-    expect(find.text('0:10'), findsOneWidget);
+    expect(find.text('20\u2009초'), findsOneWidget);
+    expect(find.text('10\u2009초'), findsOneWidget);
     expect(find.text('3:50'), findsOneWidget);
 
     await tester.tap(find.bySemanticsLabel('라운드 늘리기'));
@@ -35,7 +36,7 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('운동 늘리기'));
     await tester.pumpAndSettle();
-    expect(find.text('0:25'), findsOneWidget);
+    expect(find.text('25\u2009초'), findsOneWidget);
   });
 
   testWidgets('mode chips switch fields and remember values', (tester) async {
@@ -44,7 +45,7 @@ void main() {
     await tester.tap(find.text('AMRAP'));
     await tester.pumpAndSettle();
     expect(find.text('제한 시간'), findsOneWidget);
-    expect(find.text('12:00'), findsWidgets);
+    expect(find.text('12\u2009분'), findsOneWidget);
 
     await tester.tap(find.text('타바타'));
     await tester.pumpAndSettle();

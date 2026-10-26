@@ -17,6 +17,22 @@ String formatElapsedMs(int ms) => formatClock(ms ~/ 1000);
 /// `m:ss.d` for lap splits.
 String formatLapMs(int ms) => '${formatClock(ms ~/ 1000)}.${(ms % 1000) ~/ 100}';
 
+/// Exact duration with units: "20초", "1분 30초", "2분".
+String formatDurationKo(int sec) =>
+    [for (final p in durationParts(sec)) p.text].join().replaceAll('\u2009', '');
+
+/// [formatDurationKo] as number and unit pieces, so the two can be styled
+/// differently. Units carry a thin leading space; groups are space-separated.
+List<({String text, bool isUnit})> durationParts(int sec) {
+  final m = sec ~/ 60;
+  final s = sec % 60;
+  return [
+    if (m > 0) ...[(text: '$m', isUnit: false), (text: '\u2009분', isUnit: true)],
+    if (m > 0 && s > 0) (text: ' ', isUnit: true),
+    if (s > 0 || m == 0) ...[(text: '$s', isUnit: false), (text: '\u2009초', isUnit: true)],
+  ];
+}
+
 /// Human duration like "1시간 5분", "12분", "40초".
 String formatMinutesLabel(int totalSec) {
   if (totalSec < 60) return '$totalSec초';

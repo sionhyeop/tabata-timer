@@ -41,9 +41,29 @@ class ConfigField {
   /// Suffix for counts, e.g. "kg".
   final String? unit;
 
+  /// "20초", "1분 30초", "8", "65kg" — or [zeroLabel].
   String get display {
     if (value == 0 && zeroLabel != null) return zeroLabel!;
-    return kind == ValueKind.duration ? formatClock(value) : '$value${unit ?? ''}';
+    return kind == ValueKind.duration ? formatDurationKo(value) : '$value${unit ?? ''}';
+  }
+
+  /// [display] with numbers in [numberStyle] and units smaller and quieter,
+  /// so "20초" reads as a big 20 with its unit beside it.
+  InlineSpan styledDisplay(TextStyle numberStyle) {
+    final unitStyle = numberStyle.copyWith(
+      fontSize: (numberStyle.fontSize ?? 30) * 0.46,
+      fontWeight: FontWeight.w700,
+      color: AppColors.textSecondary,
+    );
+    if (value == 0 && zeroLabel != null) return TextSpan(text: zeroLabel, style: numberStyle);
+    final parts = kind == ValueKind.duration
+        ? durationParts(value)
+        : [(text: '$value', isUnit: false), if (unit != null) (text: '\u2009$unit', isUnit: true)];
+    return TextSpan(
+      children: [
+        for (final p in parts) TextSpan(text: p.text, style: p.isUnit ? unitStyle : numberStyle),
+      ],
+    );
   }
 
   int get _up {
@@ -183,15 +203,17 @@ class ValueTile extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(
-                          f.display,
-                          style: const TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w800,
-                            height: 1.2,
-                            fontFeatures: tabularFigures,
-                            color: AppColors.textPrimary,
+                        child: Text.rich(
+                          f.styledDisplay(
+                            const TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w800,
+                              height: 1.2,
+                              fontFeatures: tabularFigures,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
+                          maxLines: 1,
                         ),
                       ),
                     ),
@@ -217,15 +239,21 @@ class ValueTile extends StatelessWidget {
             onTap: () => _openPicker(context),
             child: SizedBox(
               width: double.infinity,
-              child: Text(
-                f.display,
-                textAlign: large ? TextAlign.center : TextAlign.start,
-                style: TextStyle(
-                  fontSize: large ? 56 : 36,
-                  fontWeight: FontWeight.w800,
-                  height: 1.15,
-                  fontFeatures: tabularFigures,
-                  color: AppColors.textPrimary,
+              // Long values ("10분 30초") shrink rather than wrap.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: large ? Alignment.center : Alignment.centerLeft,
+                child: Text.rich(
+                  f.styledDisplay(
+                    TextStyle(
+                      fontSize: large ? 56 : 36,
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                      fontFeatures: tabularFigures,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  maxLines: 1,
                 ),
               ),
             ),

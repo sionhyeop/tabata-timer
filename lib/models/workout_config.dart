@@ -1,3 +1,4 @@
+import '../utils/format.dart';
 import 'timer_mode.dart';
 
 /// Everything needed to build a workout timeline.
@@ -81,7 +82,7 @@ class WorkoutConfig {
 
   /// Short human summary, e.g. "20초 · 10초 · 8라운드".
   String get summary {
-    String t(int s) => _shortDuration(s);
+    const t = formatDurationKo;
     return switch (mode) {
       TimerMode.tabata || TimerMode.interval => [
         '운동 ${t(workSec)}',
@@ -149,11 +150,4 @@ class WorkoutConfig {
     cooldownSec: json['cooldownSec'] as int? ?? 0,
     exercises: (json['exercises'] as List?)?.cast<String>() ?? const [],
   );
-}
-
-String _shortDuration(int sec) {
-  if (sec < 60) return '$sec초';
-  final m = sec ~/ 60;
-  final s = sec % 60;
-  return s == 0 ? '$m분' : '$m분 $s초';
 }

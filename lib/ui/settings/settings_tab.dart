@@ -170,7 +170,7 @@ class SettingsTab extends StatelessWidget {
               const SizedBox(height: 28),
               const Center(
                 child: Text(
-                  '타바타 타이머 1.3.0',
+                  '타바타 타이머 1.3.1',
                   style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
                 ),
               ),

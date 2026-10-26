@@ -254,7 +254,7 @@ class _BigSummary extends StatelessWidget {
     fontFeatures: tabularFigures,
   );
   static const _repeat = TextStyle(
-    color: AppColors.cardCaption,
+    color: Color(0x80C6CCDA), // cardCaption at half opacity: present, not loud
     fontSize: 15,
     fontWeight: FontWeight.w700,
     fontFeatures: tabularFigures,

@@ -81,21 +81,29 @@ class WorkoutConfig {
   };
 
   /// Short human summary, e.g. "20초 · 10초 · 8라운드".
-  String get summary {
+  /// The plan in a few label/value pairs, e.g. (운동, 20초), (휴식, 10초),
+  /// ('', 8라운드). The value is the part to emphasize.
+  List<({String label, String value})> get summaryParts {
     const t = formatDurationKo;
     return switch (mode) {
       TimerMode.tabata || TimerMode.interval => [
-        '운동 ${t(workSec)}',
-        if (restSec > 0) '휴식 ${t(restSec)}',
-        '$rounds라운드',
-        if (sets > 1) '$sets세트',
-      ].join(' · '),
-      TimerMode.emom => '${t(workSec)}마다 · $rounds라운드',
-      TimerMode.amrap => '${t(workSec)} 동안 최대 라운드',
-      TimerMode.forTime => workSec > 0 ? '타임캡 ${t(workSec)}' : '타임캡 없음',
-      TimerMode.rest => '휴식 ${t(workSec)}',
+        (label: '운동', value: t(workSec)),
+        if (restSec > 0) (label: '휴식', value: t(restSec)),
+        (label: '', value: '$rounds라운드'),
+        if (sets > 1) (label: '', value: '$sets세트'),
+      ],
+      TimerMode.emom => [(label: '', value: '${t(workSec)}마다'), (label: '', value: '$rounds라운드')],
+      TimerMode.amrap => [(label: '제한 시간', value: t(workSec))],
+      TimerMode.forTime =>
+        workSec > 0 ? [(label: '타임캡', value: t(workSec))] : [(label: '', value: '타임캡 없음')],
+      TimerMode.rest => [(label: '휴식', value: t(workSec))],
     };
   }
+
+  /// [summaryParts] as one line: "운동 20초 · 휴식 10초 · 8라운드".
+  String get summary =>
+      [for (final p in summaryParts) p.label.isEmpty ? p.value : '${p.label} ${p.value}']
+          .join(' · ');
 
   WorkoutConfig copyWith({
     String? id,

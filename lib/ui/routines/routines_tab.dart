@@ -83,73 +83,77 @@ class _RoutineCard extends StatelessWidget {
     final total = workoutDurationSec(routine);
     final intensity = estimateIntensity(routine);
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(20, 16, 8, 12),
+      padding: const EdgeInsets.fromLTRB(16, 10, 4, 14),
       onTap: () => openRoutineEditor(context, routine),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  routine.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.cardCaption,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
+          // Title row: name and expected effort boxed together, total time
+          // beside it, the menu at the far end.
+          Row(
+            children: [
+              // Takes everything but the menu; the name gives way first.
+              Expanded(
+                child: Row(
                   children: [
+                    Flexible(
+                      child: _TitleBox(name: routine.name, intensity: intensity),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.timer_outlined, size: 14, color: AppColors.textSecondary),
+                    const SizedBox(width: 3),
                     Text(
                       total == null ? '∞' : formatClock(total),
                       style: const TextStyle(
-                        fontSize: 38,
-                        fontWeight: FontWeight.w800,
-                        fontFeatures: tabularFigures,
-                        height: 1.15,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      routine.mode.label,
-                      style: const TextStyle(
                         color: AppColors.textSecondary,
-                        fontSize: 18,
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
+                        fontFeatures: tabularFigures,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  routine.summary,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                ),
-                if (routine.exercises.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    routine.exercises.join(' · '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
+              ),
+              PopupMenuButton<_MenuAction>(
+                tooltip: '더보기',
+                icon: const Icon(Icons.more_vert, color: AppColors.textSecondary, size: 20),
+                onSelected: (action) => _onMenu(context, action),
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: _MenuAction.edit, child: Text('편집')),
+                  PopupMenuItem(value: _MenuAction.duplicate, child: Text('복제')),
+                  PopupMenuItem(
+                    value: _MenuAction.delete,
+                    child: Text('삭제', style: TextStyle(color: AppColors.accent)),
                   ),
                 ],
-                if (intensity != null) ...[
-                  const SizedBox(height: 10),
-                  IntensityMeter(level: intensity, compact: true),
-                ],
-              ],
-            ),
+              ),
+            ],
           ),
-          Column(
+          const SizedBox(height: 10),
+          // The plan, large, with the start button beside it.
+          Row(
             children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _BigSummary(parts: routine.summaryParts),
+                      if (routine.exercises.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          routine.exercises.join(' · '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               Semantics(
                 button: true,
                 label: '${routine.name} 시작',
@@ -167,20 +171,7 @@ class _RoutineCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 6),
-              PopupMenuButton<_MenuAction>(
-                tooltip: '더보기',
-                icon: const Icon(Icons.more_vert, color: AppColors.textSecondary, size: 20),
-                onSelected: (action) => _onMenu(context, action),
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: _MenuAction.edit, child: Text('편집')),
-                  PopupMenuItem(value: _MenuAction.duplicate, child: Text('복제')),
-                  PopupMenuItem(
-                    value: _MenuAction.delete,
-                    child: Text('삭제', style: TextStyle(color: AppColors.accent)),
-                  ),
-                ],
-              ),
+              const SizedBox(width: 8),
             ],
           ),
         ],
@@ -204,5 +195,87 @@ class _RoutineCard extends StatelessWidget {
         );
         if (ok) store.delete(routine.id);
     }
+  }
+}
+
+/// Routine name with its expected effort, boxed so it reads as the title.
+class _TitleBox extends StatelessWidget {
+  const _TitleBox({required this.name, required this.intensity});
+
+  final String name;
+  final IntensityLevel? intensity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 7, 10, 7),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceHigh,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
+          ),
+          if (intensity != null) ...[
+            const SizedBox(width: 10),
+            IntensityMeter(level: intensity!, compact: true),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// "운동 20초  휴식 10초  8라운드" with the values large; wraps between
+/// items, never inside one.
+class _BigSummary extends StatelessWidget {
+  const _BigSummary({required this.parts});
+
+  final List<({String label, String value})> parts;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 14,
+      runSpacing: 2,
+      crossAxisAlignment: WrapCrossAlignment.end,
+      children: [
+        for (final p in parts)
+          Text.rich(
+            TextSpan(
+              children: [
+                if (p.label.isNotEmpty)
+                  TextSpan(
+                    text: '${p.label} ',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                TextSpan(
+                  text: p.value,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    fontFeatures: tabularFigures,
+                  ),
+                ),
+              ],
+            ),
+            maxLines: 1,
+          ),
+      ],
+    );
   }
 }

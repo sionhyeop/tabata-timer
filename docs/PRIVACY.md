@@ -6,7 +6,7 @@
 
 ## 한국어
 
-타바타 타이머(이하 "앱")는 개인정보를 수집하지 않습니다.
+Spark Timer(이하 "앱")는 개인정보를 수집하지 않습니다.
 
 - **수집하는 정보 없음**: 회원가입이나 로그인이 없고, 이름·이메일·위치·연락처·기기 식별자 등 어떤 개인정보도 수집하거나 서버로 보내지 않습니다.
 - **기기에만 저장**: 설정, 루틴, 운동 기록, 체중(칼로리 추정용)은 사용자의 기기 안에만 저장됩니다. 앱을 삭제하면 함께 지워지며, 앱의 설정 › 데이터에서 언제든 운동 기록을 지울 수 있습니다.
@@ -19,7 +19,7 @@
 
 ## English
 
-Tabata Timer ("the app") does not collect personal data.
+Spark Timer ("the app") does not collect personal data.
 
 - **No data collected**: There is no sign-up or login. The app does not collect or send any personal information — no name, email, location, contacts or device identifiers.
 - **Stored on your device only**: Settings, routines, workout history and body weight (used only to estimate calories) stay on your device. They are removed when you delete the app, and you can clear your history at any time in Settings › Data.

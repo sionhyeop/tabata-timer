@@ -10,7 +10,7 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
-  String get appTitle => '타바타 타이머';
+  String get appTitle => 'Spark Timer';
 
   @override
   String get tabTimer => '타이머';

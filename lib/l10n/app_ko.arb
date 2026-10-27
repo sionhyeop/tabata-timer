@@ -1,7 +1,7 @@
 {
   "@@locale": "ko",
 
-  "appTitle": "타바타 타이머",
+  "appTitle": "Spark Timer",
   "tabTimer": "타이머",
   "tabRoutines": "루틴",
   "tabHistory": "기록",

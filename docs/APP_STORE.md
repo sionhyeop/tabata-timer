@@ -11,7 +11,7 @@ iOS 출시에 필요한 값과 문구를 한곳에 모았습니다. App Store Co
 | 빌드 | 1.5.0 (11), iPhone 전용, iOS 15.0 이상, 세로 화면 |
 | 수출 규정 | `ITSAppUsesNonExemptEncryption = NO` (업로드 때 암호화 질문 없음) |
 | 개인정보 매니페스트 | `ios/Runner/PrivacyInfo.xcprivacy` — 추적 없음, 수집 데이터 없음 |
-| 앱 이름(홈 화면) | 한국어 기기 "타바타 타이머", 그 밖에는 "Tabata Timer" |
+| 앱 이름 | App Store·홈 화면·앱 안 모두 **Spark Timer** (스토어 이름과 기기 이름을 맞춤, 가이드라인 2.3.8) |
 | 스크린샷 | 6.9" (1320×2868) 한국어·영어 각 7장 — `store/screenshots/ios/{ko,en}/` |
 | 업로드 | `tool/ios_release.sh` (앱 레코드가 생기면 실행) |
 
@@ -19,7 +19,7 @@ iOS 출시에 필요한 값과 문구를 한곳에 모았습니다. App Store Co
 
 1. **앱 만들기** — [App Store Connect](https://appstoreconnect.apple.com) › 앱 › ＋ › 신규 앱
    - 플랫폼: iOS
-   - 이름: 아래 2장의 이름 (이미 쓰인 이름이면 후보 중 다른 것으로)
+   - 이름: `Spark Timer` ✅ (생성됨)
    - 기본 언어: 한국어
    - 번들 ID: `com.tabatatimer.tabataTimer`
    - SKU: `tabata-timer-ios`
@@ -36,10 +36,9 @@ iOS 출시에 필요한 값과 문구를 한곳에 모았습니다. App Store Co
 
 ### 한국어 (기본)
 
-**이름** (30자): `타바타 타이머 - 인터벌 HIIT`
-- 후보: `타바타 타이머: HIIT 운동`, `블루 타바타 타이머`
+**이름** (30자): `Spark Timer`
 
-**부제** (30자): `음성 안내 운동·휴식 인터벌 타이머`
+**부제** (30자, 검색에 반영 — 이름에 없는 '타바타'·'HIIT'를 여기에): `타바타·HIIT 음성 인터벌 타이머`
 
 **프로모션 텍스트** (170자):
 ```
@@ -85,10 +84,9 @@ EMOM,AMRAP,홈트,서킷,크로스핏,운동,휴식,스톱워치,라운드,세�
 
 ### English (U.S.)
 
-**Name** (30): `Tabata Timer - HIIT Intervals`
-- Alternatives: `Tabata Timer: HIIT & EMOM`, `Blue Tabata Timer`
+**Name** (30): `Spark Timer`
 
-**Subtitle** (30): `Interval workouts with voice`
+**Subtitle** (30, searchable — carries 'Tabata' and 'HIIT'): `Tabata & HIIT voice interval`
 
 **Promotional text** (170):
 ```

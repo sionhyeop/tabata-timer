@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Tabata Timer';
+  String get appTitle => 'Spark Timer';
 
   @override
   String get tabTimer => 'Timer';

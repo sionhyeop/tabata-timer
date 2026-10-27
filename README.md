@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/icon/icon.png" width="120" alt="타바타 타이머 아이콘">
+  <img src="assets/icon/icon.png" width="120" alt="Spark Timer 아이콘">
 </p>
 
-<h1 align="center">타바타 타이머</h1>
+<h1 align="center">Spark Timer</h1>
 
 <p align="center">
   타바타부터 HIIT·EMOM·AMRAP·For Time·휴식 타이머까지,<br>
@@ -86,7 +86,7 @@ lib/
 
 ## English
 
-A workout timer for Tabata, intervals (HIIT), EMOM, AMRAP, For Time and rest — pick a mode, adjust a couple of numbers, tap Start. Built with Flutter for Android and iOS.
+Spark Timer is a workout timer for Tabata, intervals (HIIT), EMOM, AMRAP, For Time and rest — pick a mode, adjust a couple of numbers, tap Start. Built with Flutter for Android and iOS.
 
 <p align="center">
   <img src="docs/screenshots/20_en_home.png" width="200" alt="Timer">

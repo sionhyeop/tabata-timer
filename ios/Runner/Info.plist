@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Tabata Timer</string>
+	<string>Spark Timer</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>

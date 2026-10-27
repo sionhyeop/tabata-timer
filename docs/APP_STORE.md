@@ -13,7 +13,9 @@ iOS 출시에 필요한 값과 문구를 한곳에 모았습니다. App Store Co
 | 개인정보 매니페스트 | `ios/Runner/PrivacyInfo.xcprivacy` — 추적 없음, 수집 데이터 없음 |
 | 앱 이름 | App Store·홈 화면·앱 안 모두 **Spark Timer** (스토어 이름과 기기 이름을 맞춤, 가이드라인 2.3.8) |
 | 스크린샷 | 6.9" (1320×2868) 한국어·영어 각 7장 — `store/screenshots/ios/{ko,en}/` |
-| 업로드 | `tool/ios_release.sh` (앱 레코드가 생기면 실행) |
+| 업로드 | `tool/ios_release.sh` — 1.5.0 (11) 업로드 완료 |
+| App Store Connect 입력 (API) | 이름·부제·설명·키워드·프로모션 텍스트(ko·en), 스크린샷 14장, 카테고리, 연령 등급 4+, 무료·174개국(중국 본토 제외), 개인정보 처리방침·지원 URL, 저작권, 빌드 연결, 심사 메모, TestFlight 내부 테스트 그룹 |
+| 남은 웹 작업 | 앱 개인정보 보호 라벨 게시, 심사 연락처(이메일·전화), TestFlight 확인 후 심사 제출 |
 
 ## 1. 웹에서 할 일 (App Store Connect)
 

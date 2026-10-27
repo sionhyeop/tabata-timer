@@ -49,3 +49,7 @@ app.*.map.json
 
 # App Store screenshots (large; regenerate with integration_test/store_screenshots_test.dart)
 /store/
+
+# App Store Connect API keys must never be committed
+*.p8
+AuthKey_*

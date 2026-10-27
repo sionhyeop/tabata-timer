@@ -1,3 +1,14 @@
+/// Light or dark look; [system] follows the device.
+enum Appearance {
+  system('시스템'),
+  light('라이트'),
+  dark('다크');
+
+  const Appearance(this.label);
+
+  final String label;
+}
+
 class AppSettings {
   const AppSettings({
     this.soundOn = true,
@@ -11,6 +22,7 @@ class AppSettings {
     this.tickOn = true,
     this.voiceName,
     this.voiceLocale,
+    this.appearance = Appearance.system,
   });
 
   /// Bumped when a default changes in a way stored settings should follow.
@@ -38,6 +50,8 @@ class AppSettings {
   final String? voiceName;
   final String? voiceLocale;
 
+  final Appearance appearance;
+
   AppSettings copyWith({
     bool? soundOn,
     bool? voiceOn,
@@ -50,6 +64,7 @@ class AppSettings {
     bool? tickOn,
     (String, String)? voice,
     bool clearVoice = false,
+    Appearance? appearance,
   }) => AppSettings(
     soundOn: soundOn ?? this.soundOn,
     voiceOn: voiceOn ?? this.voiceOn,
@@ -62,6 +77,7 @@ class AppSettings {
     tickOn: tickOn ?? this.tickOn,
     voiceName: clearVoice ? null : (voice?.$1 ?? voiceName),
     voiceLocale: clearVoice ? null : (voice?.$2 ?? voiceLocale),
+    appearance: appearance ?? this.appearance,
   );
 
   Map<String, dynamic> toJson() => {
@@ -76,6 +92,7 @@ class AppSettings {
     'tickOn': tickOn,
     'voiceName': voiceName,
     'voiceLocale': voiceLocale,
+    'appearance': appearance.name,
     'schema': schemaVersion,
   };
 
@@ -97,6 +114,7 @@ class AppSettings {
       tickOn: json['tickOn'] as bool? ?? d.tickOn,
       voiceName: json['voiceName'] as String?,
       voiceLocale: json['voiceLocale'] as String?,
+      appearance: Appearance.values.asNameMap()[json['appearance']] ?? d.appearance,
     );
   }
 }

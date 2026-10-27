@@ -11,6 +11,7 @@ class ModeChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return SizedBox(
       height: 42,
       child: ListView.separated(
@@ -23,7 +24,7 @@ class ModeChips extends StatelessWidget {
           final mode = TimerMode.values[i];
           final isSelected = mode == selected;
           return Material(
-            color: isSelected ? AppColors.textPrimary : AppColors.surface,
+            color: isSelected ? palette.textPrimary : palette.surface,
             borderRadius: BorderRadius.circular(21),
             child: InkWell(
               borderRadius: BorderRadius.circular(21),
@@ -36,7 +37,7 @@ class ModeChips extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                      color: isSelected ? AppColors.bg : AppColors.textSecondary,
+                      color: isSelected ? palette.bg : palette.textSecondary,
                     ),
                   ),
                 ),

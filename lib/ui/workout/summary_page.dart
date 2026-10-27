@@ -38,6 +38,7 @@ class _SummaryPageState extends State<SummaryPage> {
       TimerMode.forTime => ('${r.laps.length}', '랩'),
       _ => ('${r.workRounds}', '라운드'),
     };
+    final palette = AppPalette.of(context);
     return Scaffold(
       body: AuroraBackground(
         child: Stack(
@@ -57,7 +58,7 @@ class _SummaryPageState extends State<SummaryPage> {
                         const SizedBox(height: 6),
                         Text(
                           '${r.name} · ${formatDateLabel(r.startedAt)} ${formatTimeOfDay(r.startedAt)}',
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
+                          style: TextStyle(color: palette.textSecondary, fontSize: 15),
                         ),
                         const SizedBox(height: 28),
                         Row(
@@ -122,9 +123,9 @@ class _SummaryPageState extends State<SummaryPage> {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text(
+                      child: Text(
                         '닫기',
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                        style: TextStyle(color: palette.textSecondary, fontSize: 16),
                       ),
                     ),
                   ),
@@ -161,7 +162,7 @@ class _Stat extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(label, style: TextStyle(color: AppPalette.of(context).textSecondary, fontSize: 13)),
         ],
       ),
     );
@@ -175,6 +176,7 @@ class _LapsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return AppCard(
       child: Column(
         children: [
@@ -183,14 +185,11 @@ class _LapsCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: Row(
                 children: [
-                  Text('랩 ${i + 1}', style: const TextStyle(color: AppColors.textSecondary)),
+                  Text('랩 ${i + 1}', style: TextStyle(color: palette.textSecondary)),
                   const Spacer(),
                   Text(
                     '+${formatLapMs(laps[i] - (i == 0 ? 0 : laps[i - 1]))}',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontFeatures: tabularFigures,
-                    ),
+                    style: TextStyle(color: palette.textSecondary, fontFeatures: tabularFigures),
                   ),
                   const SizedBox(width: 16),
                   Text(

@@ -85,6 +85,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
   @override
   Widget build(BuildContext context) {
     final total = workoutDurationSec(_config);
+    final palette = AppPalette.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -97,7 +98,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
           if (!_isNew)
             IconButton(
               tooltip: '삭제',
-              icon: const Icon(Icons.delete_outline_rounded, color: AppColors.textSecondary),
+              icon: Icon(Icons.delete_outline_rounded, color: palette.textSecondary),
               onPressed: _delete,
             ),
         ],
@@ -118,10 +119,10 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                       decoration: InputDecoration(
                         hintText: '루틴 이름 (예: 아침 타바타)',
                         counterText: '',
-                        prefixIcon: const Icon(Icons.edit_outlined, color: AppColors.textTertiary),
-                        fillColor: AppColors.surface,
+                        prefixIcon: Icon(Icons.edit_outlined, color: palette.textTertiary),
+                        fillColor: palette.surface,
                         hintStyle: TextStyle(
-                          color: AppColors.textTertiary,
+                          color: palette.textTertiary,
                           fontWeight: FontWeight.w500,
                           fontSize: 16,
                         ),
@@ -137,7 +138,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                     padding: const EdgeInsets.fromLTRB(24, 12, 24, 14),
                     child: Text(
                       _config.mode.description,
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                      style: TextStyle(color: palette.textSecondary, fontSize: 14),
                     ),
                   ),
                   Padding(
@@ -152,10 +153,10 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                     child: Center(
                       child: Text(
                         total == null ? '시간 제한 없음' : '총 ${formatClock(total)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textSecondary,
+                          color: palette.textSecondary,
                         ),
                       ),
                     ),
@@ -176,6 +177,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
 
   List<Widget> _buildExercises() {
     final exercises = _config.exercises;
+    final palette = AppPalette.of(context);
     return [
       const Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -194,7 +196,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                   _config.mode == TimerMode.amrap || _config.mode == TimerMode.forTime
                       ? '운동 화면에 표시되고 음성으로 안내돼요.'
                       : '라운드마다 순서대로 반복돼요. 운동 화면과 음성으로 안내해요.',
-                  style: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
+                  style: TextStyle(color: palette.textTertiary, fontSize: 13),
                 ),
               ),
               if (exercises.isNotEmpty)
@@ -210,23 +212,20 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                         children: [
                           ReorderableDragStartListener(
                             index: i,
-                            child: const Padding(
-                              padding: EdgeInsets.all(8),
-                              child: Icon(Icons.drag_indicator, color: AppColors.textTertiary),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Icon(Icons.drag_indicator, color: palette.textTertiary),
                             ),
                           ),
                           SizedBox(
                             width: 28,
-                            child: Text(
-                              '${i + 1}',
-                              style: const TextStyle(color: AppColors.textSecondary),
-                            ),
+                            child: Text('${i + 1}', style: TextStyle(color: palette.textSecondary)),
                           ),
                           Expanded(child: Text(exercises[i], style: const TextStyle(fontSize: 16))),
                           IconButton(
                             tooltip: '삭제',
                             icon: const Icon(Icons.close_rounded, size: 20),
-                            color: AppColors.textSecondary,
+                            color: palette.textSecondary,
                             onPressed: () => _removeExercise(i),
                           ),
                         ],

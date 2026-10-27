@@ -9,19 +9,21 @@ class AppCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(18),
     this.onTap,
     this.onLongPress,
-    this.color = AppColors.surface,
+    this.color,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
-  final Color color;
+
+  /// Defaults to the palette's surface.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color,
+      color: color ?? AppPalette.of(context).surface,
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -86,8 +88,15 @@ class SecondaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   @override
-  Widget build(BuildContext context) =>
-      PrimaryButton(label: label, onPressed: onPressed, color: AppColors.grayButton);
+  Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
+    return PrimaryButton(
+      label: label,
+      onPressed: onPressed,
+      color: palette.grayButton,
+      foreground: palette.textPrimary,
+    );
+  }
 }
 
 /// Red → orange banner, like "프리미엄 알라미 >" in the reference.
@@ -156,7 +165,7 @@ class ScreenHeader extends StatelessWidget {
                 if (subtitle != null)
                   Text(
                     subtitle!,
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                    style: TextStyle(color: AppPalette.of(context).textSecondary, fontSize: 14),
                   ),
                 if (subtitle != null) const SizedBox(height: 4),
                 Text(title, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
@@ -180,8 +189,8 @@ class SectionLabel extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(4, 24, 4, 10),
     child: Text(
       text,
-      style: const TextStyle(
-        color: AppColors.textSecondary,
+      style: TextStyle(
+        color: AppPalette.of(context).textSecondary,
         fontSize: 13,
         fontWeight: FontWeight.w600,
       ),
@@ -230,8 +239,9 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Material(
-      color: selected ? AppColors.accent : AppColors.surfaceHigh,
+      color: selected ? AppColors.accent : palette.surfaceHigh,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
@@ -243,7 +253,7 @@ class _Pill extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected ? Colors.white : AppColors.textSecondary,
+              color: selected ? Colors.white : palette.textSecondary,
             ),
           ),
         ),
@@ -262,9 +272,9 @@ Future<bool> showConfirmDialog(
 }) async {
   final result = await showDialog<bool>(
     context: context,
-    barrierColor: Colors.black.withValues(alpha: 0.7),
+    barrierColor: AppPalette.of(context).scrim,
     builder: (context) => Dialog(
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppPalette.of(context).surface,
       surfaceTintColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 28),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -283,7 +293,11 @@ Future<bool> showConfirmDialog(
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.4),
+                style: TextStyle(
+                  color: AppPalette.of(context).textSecondary,
+                  fontSize: 14,
+                  height: 1.4,
+                ),
               ),
             ],
             const SizedBox(height: 28),

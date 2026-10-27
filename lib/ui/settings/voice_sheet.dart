@@ -36,6 +36,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
   Widget build(BuildContext context) {
     final services = AppScope.of(context);
     final settings = services.settings;
+    final palette = AppPalette.of(context);
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.75),
       child: SafeArea(
@@ -73,11 +74,11 @@ class _VoiceSheetState extends State<_VoiceSheet> {
                         onTap: () => settings.update((s) => s.copyWith(clearVoice: true)),
                       ),
                       if (voices.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(16),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
                           child: Text(
                             '한국어 음성을 찾지 못했어요. 기기 설정에서 한국어 음성(TTS)을 설치해 주세요.',
-                            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+                            style: TextStyle(color: palette.textSecondary, height: 1.5),
                           ),
                         ),
                       for (var i = 0; i < voices.length; i++)
@@ -97,11 +98,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
                           Platform.isIOS
                               ? '더 자연스러운 목소리가 필요하면 설정 › 손쉬운 사용 › 읽기 및 말하기 › 음성 › 한국어에서 ‘향상됨’ 또는 ‘프리미엄’ 음성을 내려받으세요.'
                               : '더 자연스러운 목소리가 필요하면 설정 › 일반 › 글자 읽어주기에서 Google 음성 엔진의 한국어 음성 데이터를 설치하세요. (삼성 TTS는 다른 앱에서 쓸 수 없어요)',
-                          style: const TextStyle(
-                            color: AppColors.textTertiary,
-                            fontSize: 12,
-                            height: 1.5,
-                          ),
+                          style: TextStyle(color: palette.textTertiary, fontSize: 12, height: 1.5),
                         ),
                       ),
                     ],
@@ -133,8 +130,9 @@ class _VoiceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Material(
-      color: selected ? AppColors.surfaceHigh : Colors.transparent,
+      color: selected ? palette.surfaceHigh : Colors.transparent,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -145,7 +143,7 @@ class _VoiceRow extends StatelessWidget {
             children: [
               Icon(
                 selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                color: selected ? AppColors.accent : AppColors.textTertiary,
+                color: selected ? AppColors.accent : palette.textTertiary,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -158,7 +156,7 @@ class _VoiceRow extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      style: TextStyle(color: palette.textSecondary, fontSize: 12),
                     ),
                   ],
                 ),
@@ -168,7 +166,7 @@ class _VoiceRow extends StatelessWidget {
                   tooltip: '미리 듣기',
                   onPressed: onPreview,
                   icon: const Icon(Icons.play_circle_outline_rounded),
-                  color: AppColors.textSecondary,
+                  color: palette.textSecondary,
                 ),
             ],
           ),

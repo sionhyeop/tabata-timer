@@ -65,6 +65,7 @@ class _Bars extends StatelessWidget {
     final width = compact ? 4.0 : 6.0;
     final base = compact ? 5.0 : 7.0;
     final step = compact ? 2.5 : 3.5;
+    final off = AppPalette.of(context).grayButton.withValues(alpha: 0.6);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -75,9 +76,7 @@ class _Bars extends StatelessWidget {
             width: width,
             height: base + i * step,
             decoration: BoxDecoration(
-              color: i < level.value
-                  ? AppColors.intensityRamp[i]
-                  : AppColors.grayButton.withValues(alpha: 0.6),
+              color: i < level.value ? AppColors.intensityRamp[i] : off,
               borderRadius: BorderRadius.circular(2),
             ),
           ),

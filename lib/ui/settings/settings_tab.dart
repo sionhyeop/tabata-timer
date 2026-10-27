@@ -15,6 +15,7 @@ class SettingsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final services = AppScope.of(context);
     final store = services.settings;
+    final palette = AppPalette.of(context);
     return SafeArea(
       bottom: false,
       child: ListenableBuilder(
@@ -59,7 +60,7 @@ class SettingsTab extends StatelessWidget {
                   ),
                   _TapRow(
                     title: '소리 테스트',
-                    trailing: const Icon(Icons.volume_up_rounded, color: AppColors.textSecondary),
+                    trailing: Icon(Icons.volume_up_rounded, color: palette.textSecondary),
                     onTap: services.cues.preview,
                   ),
                 ],
@@ -98,6 +99,16 @@ class SettingsTab extends StatelessWidget {
               const SectionLabel('화면'),
               _Group(
                 children: [
+                  _ChoiceRow(
+                    title: '테마',
+                    subtitle: '시스템은 기기의 라이트·다크 설정을 따라가요',
+                    child: SegmentedPills<Appearance>(
+                      options: Appearance.values,
+                      selected: s.appearance,
+                      labelOf: (a) => a.label,
+                      onChanged: (a) => set((s) => s.copyWith(appearance: a)),
+                    ),
+                  ),
                   _SwitchRow(
                     title: '운동 중 화면 켜짐 유지',
                     subtitle: '운동 화면에서만 적용돼요',
@@ -168,10 +179,10 @@ class SettingsTab extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 28),
-              const Center(
+              Center(
                 child: Text(
-                  '타바타 타이머 1.3.5',
-                  style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
+                  '타바타 타이머 1.4.0',
+                  style: TextStyle(color: palette.textTertiary, fontSize: 12),
                 ),
               ),
             ],
@@ -222,7 +233,10 @@ class _RowText extends StatelessWidget {
         ),
         if (subtitle != null) ...[
           const SizedBox(height: 3),
-          Text(subtitle!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(
+            subtitle!,
+            style: TextStyle(color: AppPalette.of(context).textSecondary, fontSize: 13),
+          ),
         ],
       ],
     );
@@ -289,7 +303,7 @@ class _TapRow extends StatelessWidget {
             Expanded(
               child: _RowText(title: title, subtitle: subtitle, titleColor: titleColor),
             ),
-            trailing ?? const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+            trailing ?? Icon(Icons.chevron_right, color: AppPalette.of(context).textTertiary),
           ],
         ),
       ),

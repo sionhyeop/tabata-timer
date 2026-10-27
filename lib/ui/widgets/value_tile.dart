@@ -47,13 +47,13 @@ class ConfigField {
     return kind == ValueKind.duration ? formatDurationKo(value) : '$value${unit ?? ''}';
   }
 
-  /// [display] with numbers in [numberStyle] and units smaller and quieter,
-  /// so "20초" reads as a big 20 with its unit beside it.
-  InlineSpan styledDisplay(TextStyle numberStyle) {
+  /// [display] with numbers in [numberStyle] and units smaller and in
+  /// [unitColor], so "20초" reads as a big 20 with its unit beside it.
+  InlineSpan styledDisplay(TextStyle numberStyle, Color unitColor) {
     final unitStyle = numberStyle.copyWith(
       fontSize: (numberStyle.fontSize ?? 30) * 0.46,
       fontWeight: FontWeight.w700,
-      color: AppColors.textSecondary,
+      color: unitColor,
     );
     if (value == 0 && zeroLabel != null) return TextSpan(text: zeroLabel, style: numberStyle);
     final parts = kind == ValueKind.duration
@@ -151,6 +151,7 @@ class ValueTile extends StatelessWidget {
 
   Widget _content(BuildContext context) {
     final f = field;
+    final palette = AppPalette.of(context);
     final label = Row(
       children: [
         if (f.dot != null) ...[
@@ -163,11 +164,7 @@ class ValueTile extends StatelessWidget {
         ],
         Text(
           f.label,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: palette.textSecondary, fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -205,13 +202,14 @@ class ValueTile extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text.rich(
                           f.styledDisplay(
-                            const TextStyle(
+                            TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.w800,
                               height: 1.2,
                               fontFeatures: tabularFigures,
-                              color: AppColors.textPrimary,
+                              color: palette.textPrimary,
                             ),
+                            palette.textSecondary,
                           ),
                           maxLines: 1,
                         ),
@@ -250,8 +248,9 @@ class ValueTile extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                       height: 1.15,
                       fontFeatures: tabularFigures,
-                      color: AppColors.textPrimary,
+                      color: palette.textPrimary,
                     ),
+                    palette.textSecondary,
                   ),
                   maxLines: 1,
                 ),
@@ -315,6 +314,7 @@ class _StepButtonState extends State<_StepButton> {
   @override
   Widget build(BuildContext context) {
     final enabled = widget.enabled;
+    final palette = AppPalette.of(context);
     return Semantics(
       button: true,
       label: widget.label,
@@ -331,7 +331,7 @@ class _StepButtonState extends State<_StepButton> {
         onLongPressEnd: (_) => _stopRepeat(),
         onLongPressCancel: _stopRepeat,
         child: Material(
-          color: AppColors.surfaceHigh,
+          color: palette.surfaceHigh,
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
@@ -347,7 +347,7 @@ class _StepButtonState extends State<_StepButton> {
               child: Icon(
                 widget.icon,
                 size: 22,
-                color: enabled ? AppColors.textPrimary : AppColors.textTertiary,
+                color: enabled ? palette.textPrimary : palette.textTertiary,
               ),
             ),
           ),
@@ -386,6 +386,7 @@ class _PickerSheetState extends State<_PickerSheet> {
     final f = widget.field;
     final isDuration = f.kind == ValueKind.duration;
     final maxMinutes = f.max ~/ 60;
+    final palette = AppPalette.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -397,11 +398,11 @@ class _PickerSheetState extends State<_PickerSheet> {
             SizedBox(
               height: 200,
               child: CupertinoTheme(
-                data: const CupertinoThemeData(
-                  brightness: Brightness.dark,
+                data: CupertinoThemeData(
+                  brightness: Theme.of(context).brightness,
                   textTheme: CupertinoTextThemeData(
                     pickerTextStyle: TextStyle(
-                      color: AppColors.textPrimary,
+                      color: palette.textPrimary,
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
                     ),
@@ -466,7 +467,9 @@ class _PickerSheetState extends State<_PickerSheet> {
     return CupertinoPicker(
       scrollController: FixedExtentScrollController(initialItem: initial.clamp(0, count - 1)),
       itemExtent: 44,
-      selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(background: Color(0x22FFFFFF)),
+      selectionOverlay: CupertinoPickerDefaultSelectionOverlay(
+        background: AppPalette.of(context).textPrimary.withValues(alpha: 0.13),
+      ),
       onSelectedItemChanged: (i) {
         HapticFeedback.selectionClick();
         onChanged(i);

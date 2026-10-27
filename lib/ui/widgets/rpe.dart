@@ -48,6 +48,7 @@ class RpeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Semantics(
       button: true,
       selected: selected,
@@ -67,7 +68,10 @@ class RpeOption extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: level.color.withValues(alpha: selected ? 1 : 0.85),
-                  border: Border.all(color: selected ? Colors.white : Colors.transparent, width: 3),
+                  border: Border.all(
+                    color: selected ? palette.textPrimary : Colors.transparent,
+                    width: 3,
+                  ),
                 ),
                 alignment: Alignment.center,
                 child: Text(level.emoji, style: const TextStyle(fontSize: 24)),
@@ -81,7 +85,7 @@ class RpeOption extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: selected ? AppColors.textPrimary : AppColors.textSecondary,
+                  color: selected ? palette.textPrimary : palette.textSecondary,
                 ),
               ),
             ],

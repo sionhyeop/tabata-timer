@@ -23,6 +23,7 @@ class TimerTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final services = AppScope.of(context);
     final setup = services.setup;
+    final palette = AppPalette.of(context);
     return ListenableBuilder(
       listenable: Listenable.merge([setup, services.routines]),
       builder: (context, _) {
@@ -45,7 +46,7 @@ class TimerTab extends StatelessWidget {
                           tooltip: '루틴으로 저장',
                           onPressed: () => _saveAsRoutine(context, config),
                           icon: const Icon(Icons.bookmark_add_outlined),
-                          color: AppColors.textSecondary,
+                          color: palette.textSecondary,
                         ),
                       ),
                     ),
@@ -63,7 +64,7 @@ class TimerTab extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(24, 10, 24, 12),
                       child: Text(
                         config.mode.description,
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        style: TextStyle(color: palette.textSecondary, fontSize: 14),
                       ),
                     ),
                     Padding(
@@ -147,7 +148,7 @@ class _SummaryCard extends StatelessWidget {
               ),
             ),
             if (intensity != null) ...[
-              Container(width: 1, height: 40, color: AppColors.border),
+              Container(width: 1, height: 40, color: AppPalette.of(context).border),
               const SizedBox(width: 16),
               Expanded(
                 child: _Labeled(
@@ -178,7 +179,7 @@ class _Labeled extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+        Text(label, style: TextStyle(color: AppPalette.of(context).textSecondary, fontSize: 13)),
         const SizedBox(height: 6),
         SizedBox(
           height: 34,

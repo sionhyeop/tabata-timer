@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'data/app_scope.dart';
+import 'models/app_settings.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_theme.dart';
 import 'ui/history/history_tab.dart';
@@ -19,15 +21,37 @@ class TabataApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppScope(
       services: services,
-      child: MaterialApp(
-        title: '타바타 타이머',
-        debugShowCheckedModeBanner: false,
-        theme: buildAppTheme(),
-        locale: const Locale('ko'),
-        supportedLocales: const [Locale('ko'), Locale('en')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        home: const HomeShell(),
+      child: ListenableBuilder(
+        listenable: services.settings,
+        builder: (context, _) => MaterialApp(
+          title: '타바타 타이머',
+          debugShowCheckedModeBanner: false,
+          theme: appLightTheme,
+          darkTheme: appDarkTheme,
+          themeMode: switch (services.settings.value.appearance) {
+            Appearance.system => ThemeMode.system,
+            Appearance.light => ThemeMode.light,
+            Appearance.dark => ThemeMode.dark,
+          },
+          locale: const Locale('ko'),
+          supportedLocales: const [Locale('ko'), Locale('en')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          builder: (context, child) => AnnotatedRegion(value: _systemBars(context), child: child!),
+          home: const HomeShell(),
+        ),
       ),
+    );
+  }
+
+  /// Status and navigation bar icons that read on the current background.
+  static SystemUiOverlayStyle _systemBars(BuildContext context) {
+    final palette = AppPalette.of(context);
+    final style = Theme.of(context).brightness == Brightness.dark
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark;
+    return style.copyWith(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: palette.navBar,
     );
   }
 }
@@ -71,7 +95,7 @@ class _HomeShellState extends State<HomeShell> {
   }
 }
 
-/// Outline icons; the selected tab turns white with a short underline,
+/// Outline icons; the selected tab turns bright with a short underline,
 /// like the reference.
 class _BottomBar extends StatelessWidget {
   const _BottomBar({required this.index, required this.onSelect});
@@ -82,7 +106,7 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.navBar,
+      color: AppPalette.of(context).navBar,
       child: SafeArea(
         top: false,
         child: SizedBox(
@@ -110,7 +134,8 @@ class _BarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.textPrimary : AppColors.textTertiary;
+    final palette = AppPalette.of(context);
+    final color = selected ? palette.textPrimary : palette.textTertiary;
     return Semantics(
       selected: selected,
       button: true,
@@ -138,7 +163,7 @@ class _BarItem extends StatelessWidget {
                 width: selected ? 22 : 0,
                 height: 2.5,
                 decoration: BoxDecoration(
-                  color: AppColors.textPrimary,
+                  color: palette.textPrimary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

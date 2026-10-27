@@ -41,13 +41,9 @@ class WorkRestCard extends StatelessWidget {
   final ConfigField work;
   final ConfigField rest;
 
-  static final _tint = Color.alphaBlend(
-    AppColors.accent.withValues(alpha: 0.06),
-    AppColors.surface,
-  );
-
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(17),
@@ -64,7 +60,7 @@ class WorkRestCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(1.2),
         child: AppCard(
-          color: _tint,
+          color: Color.alphaBlend(AppColors.accent.withValues(alpha: 0.06), palette.surface),
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
           child: Column(
             children: [
@@ -75,7 +71,7 @@ class WorkRestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(child: ValueTile(field: work, bare: true)),
-                    const VerticalDivider(width: 28, thickness: 1, color: AppColors.border),
+                    VerticalDivider(width: 28, thickness: 1, color: palette.border),
                     Expanded(child: ValueTile(field: rest, bare: true)),
                   ],
                 ),

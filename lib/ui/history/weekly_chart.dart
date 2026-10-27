@@ -95,11 +95,12 @@ class _DayColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final empty = value == 0;
+    final palette = AppPalette.of(context);
     final color = isToday
         ? AppColors.accent
         : isSelected
-        ? AppColors.textSecondary
-        : AppColors.grayButton;
+        ? palette.textSecondary
+        : palette.grayButton;
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -111,8 +112,8 @@ class _DayColumn extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.visible,
                   softWrap: false,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: palette.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     fontFeatures: tabularFigures,
@@ -134,7 +135,7 @@ class _DayColumn extends StatelessWidget {
                 // Empty days keep a short stub so the baseline reads as a row.
                 height: empty ? 3 : math.max(6, constraints.maxHeight * fraction),
                 decoration: BoxDecoration(
-                  color: empty ? AppColors.surfaceHigh : color,
+                  color: empty ? palette.surfaceHigh : color,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                 ),
               ),
@@ -147,7 +148,7 @@ class _DayColumn extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
-            color: isToday ? AppColors.textPrimary : AppColors.textSecondary,
+            color: isToday ? palette.textPrimary : palette.textSecondary,
           ),
         ),
       ],

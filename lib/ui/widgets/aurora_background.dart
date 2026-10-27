@@ -77,7 +77,9 @@ class _AuroraBackgroundState extends State<AuroraBackground> with WidgetsBinding
     return Stack(
       children: [
         Positioned.fill(
-          child: RepaintBoundary(child: CustomPaint(painter: _AuroraPainter(_t))),
+          child: RepaintBoundary(
+            child: CustomPaint(painter: _AuroraPainter(_t, AppPalette.of(context))),
+          ),
         ),
         widget.child,
       ],
@@ -86,9 +88,10 @@ class _AuroraBackgroundState extends State<AuroraBackground> with WidgetsBinding
 }
 
 class _AuroraPainter extends CustomPainter {
-  _AuroraPainter(this.t) : super(repaint: t);
+  _AuroraPainter(this.t, this.palette) : super(repaint: t);
 
   final ValueListenable<double> t;
+  final AppPalette palette;
 
   static const _hues = [AppColors.accentDeep, Color(0xFF8B5CF6), AppColors.accent];
 
@@ -103,7 +106,7 @@ class _AuroraPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = AppColors.bg);
+    canvas.drawRect(Offset.zero & size, Paint()..color = palette.bg);
     final v = t.value;
     final a = v * math.pi * 2;
     _glow(
@@ -114,7 +117,7 @@ class _AuroraPainter extends CustomPainter {
       ),
       radius: size.width * 1.0,
       color: _cycle(v),
-      opacity: 0.3,
+      opacity: 0.3 * palette.glow,
     );
     _glow(
       canvas,
@@ -124,7 +127,7 @@ class _AuroraPainter extends CustomPainter {
       ),
       radius: size.width * 0.8,
       color: _cycle(v + 0.5),
-      opacity: 0.13,
+      opacity: 0.13 * palette.glow,
     );
   }
 
@@ -149,5 +152,5 @@ class _AuroraPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_AuroraPainter old) => old.t != t;
+  bool shouldRepaint(_AuroraPainter old) => old.t != t || old.palette != palette;
 }

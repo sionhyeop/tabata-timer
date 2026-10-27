@@ -41,12 +41,12 @@ class RoutinesTab extends StatelessWidget {
               children: [
                 ScreenHeader(subtitle: '${routines.length}개의 루틴', title: '내 루틴'),
                 if (routines.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 80),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 80),
                     child: Text(
                       '저장된 루틴이 없어요.\n＋ 버튼으로 나만의 루틴을 만들어 보세요.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+                      style: TextStyle(color: AppPalette.of(context).textSecondary, height: 1.5),
                     ),
                   ),
                 for (final routine in routines) ...[
@@ -82,6 +82,7 @@ class _RoutineCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = workoutDurationSec(routine);
     final intensity = estimateIntensity(routine);
+    final palette = AppPalette.of(context);
     return AppCard(
       padding: const EdgeInsets.fromLTRB(16, 10, 4, 14),
       onTap: () => openRoutineEditor(context, routine),
@@ -100,12 +101,12 @@ class _RoutineCard extends StatelessWidget {
                       child: _TitleBox(name: routine.name, intensity: intensity),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.timer_outlined, size: 14, color: AppColors.textSecondary),
+                    Icon(Icons.timer_outlined, size: 14, color: palette.textSecondary),
                     const SizedBox(width: 3),
                     Text(
                       total == null ? '∞' : formatClock(total),
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: palette.textSecondary,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         fontFeatures: tabularFigures,
@@ -116,7 +117,7 @@ class _RoutineCard extends StatelessWidget {
               ),
               PopupMenuButton<_MenuAction>(
                 tooltip: '더보기',
-                icon: const Icon(Icons.more_vert, color: AppColors.textSecondary, size: 20),
+                icon: Icon(Icons.more_vert, color: palette.textSecondary, size: 20),
                 onSelected: (action) => _onMenu(context, action),
                 itemBuilder: (_) => const [
                   PopupMenuItem(value: _MenuAction.edit, child: Text('편집')),
@@ -146,7 +147,7 @@ class _RoutineCard extends StatelessWidget {
                           routine.exercises.join(' · '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: AppColors.textTertiary, fontSize: 13),
+                          style: TextStyle(color: palette.textTertiary, fontSize: 13),
                         ),
                       ],
                     ],
@@ -207,12 +208,13 @@ class _TitleBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 7, 10, 7),
       decoration: BoxDecoration(
-        color: AppColors.surfaceHigh,
+        color: palette.surfaceHigh,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -242,26 +244,27 @@ class _BigSummary extends StatelessWidget {
 
   final List<({String label, String value, bool repeat})> parts;
 
-  static const _label = TextStyle(
-    color: AppColors.textSecondary,
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-  );
-  static const _value = TextStyle(
-    color: AppColors.textPrimary,
-    fontSize: 22,
-    fontWeight: FontWeight.w800,
-    fontFeatures: tabularFigures,
-  );
-  static const _repeat = TextStyle(
-    color: Color(0x80C6CCDA), // cardCaption at half opacity: present, not loud
-    fontSize: 15,
-    fontWeight: FontWeight.w700,
-    fontFeatures: tabularFigures,
-  );
-
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
+    final label = TextStyle(
+      color: palette.textSecondary,
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+    );
+    final value = TextStyle(
+      color: palette.textPrimary,
+      fontSize: 22,
+      fontWeight: FontWeight.w800,
+      fontFeatures: tabularFigures,
+    );
+    final repeat = TextStyle(
+      // Half opacity: present, not loud.
+      color: palette.cardCaption.withValues(alpha: 0.5),
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+      fontFeatures: tabularFigures,
+    );
     // Repeat counts travel together ("×8라운드 ×2세트"), so a wrap never
     // separates them.
     final repeats = [
@@ -278,8 +281,8 @@ class _BigSummary extends StatelessWidget {
             Text.rich(
               TextSpan(
                 children: [
-                  if (p.label.isNotEmpty) TextSpan(text: '${p.label} ', style: _label),
-                  TextSpan(text: p.value, style: _value),
+                  if (p.label.isNotEmpty) TextSpan(text: '${p.label} ', style: label),
+                  TextSpan(text: p.value, style: value),
                 ],
               ),
               maxLines: 1,
@@ -288,7 +291,7 @@ class _BigSummary extends StatelessWidget {
           Padding(
             // Sit on roughly the same baseline as the large values.
             padding: const EdgeInsets.only(bottom: 2),
-            child: Text(repeats, style: _repeat, maxLines: 1),
+            child: Text(repeats, style: repeat, maxLines: 1),
           ),
       ],
     );

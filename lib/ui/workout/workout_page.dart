@@ -23,6 +23,13 @@ import '../widgets/common.dart';
 import '../widgets/intensity_meter.dart';
 import 'summary_page.dart';
 
+/// [WorkoutPage] in the dark theme whatever the app's appearance: the screen
+/// is the phase color with white text, and its dialogs should match.
+Widget darkWorkoutPage(WorkoutConfig config) => Theme(
+  data: appDarkTheme,
+  child: WorkoutPage(config: config),
+);
+
 /// Full-screen workout. The background takes the phase color so the state
 /// is readable from across the room.
 class WorkoutPage extends StatefulWidget {
@@ -196,7 +203,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder<void>(
-        pageBuilder: (_, _, _) => WorkoutPage(config: widget.config),
+        pageBuilder: (_, _, _) => darkWorkoutPage(widget.config),
         transitionDuration: Duration.zero,
       ),
     );
@@ -875,7 +882,7 @@ class _GlassButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = solid ? (foreground ?? AppColors.bg) : Colors.white;
+    final fg = solid ? (foreground ?? AppPalette.of(context).bg) : Colors.white;
     return Material(
       color: solid ? Colors.white : Colors.white.withValues(alpha: 0.18),
       borderRadius: BorderRadius.circular(16),

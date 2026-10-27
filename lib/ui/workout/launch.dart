@@ -19,7 +19,7 @@ Future<void> launchWorkout(
   await BackgroundSession.ensureNotificationPermission();
   await navigator.push(
     PageRouteBuilder<void>(
-      pageBuilder: (_, _, _) => WorkoutPage(config: config),
+      pageBuilder: (_, _, _) => darkWorkoutPage(config),
       transitionDuration: const Duration(milliseconds: 280),
       reverseTransitionDuration: const Duration(milliseconds: 220),
       transitionsBuilder: (_, animation, _, child) => FadeTransition(

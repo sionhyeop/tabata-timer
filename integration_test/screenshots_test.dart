@@ -4,11 +4,15 @@
 //     --target=integration_test/screenshots_test.dart -d <device>
 //
 // PNGs land in build/screenshots/.
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tabata_timer/app.dart';
 import 'package:tabata_timer/data/app_scope.dart';
+import 'package:tabata_timer/models/app_settings.dart';
 import 'package:tabata_timer/models/timer_mode.dart';
 import 'package:tabata_timer/models/workout_record.dart';
 import 'package:tabata_timer/ui/widgets/aurora_background.dart';
@@ -34,6 +38,8 @@ void main() {
     await prefs.clear();
     final services = AppServices(prefs);
     await services.cues.init();
+    // Dark first whatever the simulator's appearance; light comes at the end.
+    services.settings.update((s) => s.copyWith(appearance: Appearance.dark));
 
     // Recent sessions on consecutive days (relative to now, so the streak
     // and list look right whatever time the test runs).
@@ -156,6 +162,46 @@ void main() {
     await tester.pumpAndSettle();
     await shot(tester, '13_voice_sheet');
     await tester.tapAt(const Offset(20, 60)); // dismiss the sheet
+    await tester.pumpAndSettle();
+
+    // Light mode.
+    services.settings.update((s) => s.copyWith(appearance: Appearance.light));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('라이트'), 200);
+    await tester.drag(find.text('테마'), const Offset(0, -150));
+    await tester.pumpAndSettle();
+    await shot(tester, '14_light_settings');
+
+    await tester.tap(find.text('타이머').last); // the tab, not the settings section
+    await tester.pumpAndSettle();
+    await shot(tester, '15_light_home');
+
+    await tester.tap(find.text('20\u2009초'));
+    await tester.pumpAndSettle();
+    await shot(tester, '16_light_picker');
+    await tester.tap(find.text('취소'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('루틴'));
+    await tester.pumpAndSettle();
+    await shot(tester, '17_light_routines');
+
+    await tester.tap(find.text('기록'));
+    await tester.pumpAndSettle();
+    await shot(tester, '18_light_history');
+
+    unawaited(
+      Navigator.of(tester.element(find.byType(HomeShell))).push(
+        MaterialPageRoute<void>(
+          builder: (_) => SummaryPage(record: services.history.records.first),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('적당해요'));
+    await tester.pumpAndSettle();
+    await shot(tester, '19_light_summary');
+    await tester.tap(find.text('닫기'));
     await tester.pumpAndSettle();
 
     await prefs.clear();

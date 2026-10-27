@@ -18,6 +18,7 @@ class HistoryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final history = AppScope.of(context).history;
+    final palette = AppPalette.of(context);
     return SafeArea(
       bottom: false,
       child: ListenableBuilder(
@@ -32,12 +33,12 @@ class HistoryTab extends StatelessWidget {
           ];
           if (records.isEmpty) {
             children.add(
-              const Padding(
-                padding: EdgeInsets.only(top: 40),
+              Padding(
+                padding: const EdgeInsets.only(top: 40),
                 child: Text(
                   '아직 기록이 없어요.\n첫 운동을 시작해 보세요!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+                  style: TextStyle(color: palette.textSecondary, height: 1.5),
                 ),
               ),
             );
@@ -52,7 +53,7 @@ class HistoryTab extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
                   child: Text(
                     day == dateOnly(now) ? '오늘' : formatDateLabel(day),
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    style: TextStyle(color: palette.textSecondary, fontSize: 13),
                   ),
                 ),
               );
@@ -82,7 +83,10 @@ class _WeekCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('이번 주 운동 시간', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+          Text(
+            '이번 주 운동 시간',
+            style: TextStyle(color: AppPalette.of(context).textSecondary, fontSize: 14),
+          ),
           const SizedBox(height: 4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -120,7 +124,7 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surfaceHigh,
+        color: AppPalette.of(context).surfaceHigh,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
@@ -153,6 +157,7 @@ class _RecordCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rpe = RpeLevel.of(record.rpe);
+    final palette = AppPalette.of(context);
     return AppCard(
       padding: const EdgeInsets.fromLTRB(16, 14, 4, 14),
       onLongPress: () => _delete(context),
@@ -161,8 +166,8 @@ class _RecordCard extends StatelessWidget {
           Container(
             width: 42,
             height: 42,
-            decoration: const BoxDecoration(color: AppColors.surfaceHigh, shape: BoxShape.circle),
-            child: Icon(modeIcon(record.mode), color: AppColors.textPrimary, size: 22),
+            decoration: BoxDecoration(color: palette.surfaceHigh, shape: BoxShape.circle),
+            child: Icon(modeIcon(record.mode), color: palette.textPrimary, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -181,18 +186,15 @@ class _RecordCard extends StatelessWidget {
                     ),
                     if (!record.completed) ...[
                       const SizedBox(width: 6),
-                      const Text(
-                        '중단',
-                        style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
-                      ),
+                      Text('중단', style: TextStyle(color: palette.textTertiary, fontSize: 12)),
                     ],
                   ],
                 ),
                 const SizedBox(height: 3),
                 Text(
                   _details,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: palette.textSecondary,
                     fontSize: 13,
                     fontFeatures: tabularFigures,
                   ),
@@ -205,7 +207,7 @@ class _RecordCard extends StatelessWidget {
             children: [
               Text(
                 formatTimeOfDay(record.startedAt),
-                style: const TextStyle(color: AppColors.textTertiary, fontSize: 12),
+                style: TextStyle(color: palette.textTertiary, fontSize: 12),
               ),
               if (rpe != null) ...[
                 const SizedBox(height: 4),
@@ -228,7 +230,7 @@ class _RecordCard extends StatelessWidget {
           ),
           PopupMenuButton<String>(
             tooltip: '더보기',
-            icon: const Icon(Icons.more_vert, color: AppColors.textSecondary, size: 20),
+            icon: Icon(Icons.more_vert, color: palette.textSecondary, size: 20),
             onSelected: (_) => _delete(context),
             itemBuilder: (_) => const [
               PopupMenuItem(

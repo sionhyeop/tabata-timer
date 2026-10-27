@@ -6,7 +6,7 @@
 
 <p align="center">
   타바타부터 HIIT·EMOM·AMRAP·For Time·휴식 타이머까지,<br>
-  탭 한 번으로 시작하는 다크 테마 운동 타이머 (Flutter · Android / iOS)
+  탭 한 번으로 시작하는 운동 타이머 · 다크/라이트 모드 (Flutter · Android / iOS)
 </p>
 
 <p align="center">
@@ -18,6 +18,11 @@
   <img src="docs/screenshots/09_summary.png" width="200">
   <img src="docs/screenshots/10_routines.png" width="200">
   <img src="docs/screenshots/11_history.png" width="200">
+</p>
+<p align="center">
+  <img src="docs/screenshots/15_light_home.png" width="200" alt="라이트 모드 타이머">
+  <img src="docs/screenshots/17_light_routines.png" width="200" alt="라이트 모드 루틴">
+  <img src="docs/screenshots/18_light_history.png" width="200" alt="라이트 모드 기록">
 </p>
 <p align="center">
   <img src="docs/screenshots/notification.png" width="420" alt="알림창 진행 바">
@@ -34,7 +39,8 @@
 - **강도가 한눈에** — 시작 전 예상 강도(이모지 + 신호 막대), 운동 중 순간 강도에 반응하는 마스코트(💪 → 😤 → 🥵, 휴식 😅 → 😌), 끝난 뒤 체감 강도까지 같은 5단계 이모지·색으로 표시
 - **루틴** — 기본 루틴 9종, 라운드별 운동 이름(서킷), 저장·편집·복제·삭제, 최근 루틴 빠른 시작
 - **기록** — 완료 화면(축하·요약·칼로리 추정·운동 강도), 주간 차트, 연속 운동일
-- **설정** — 효과음·음성·진동, 카운트다운 길이, 준비 시간, 화면 켜짐 유지, 체중
+- **다크 · 라이트 모드** — 기기 설정을 따르거나 직접 선택. 라이트는 눈부시지 않은 차분한 회청색 톤이고, 운동 화면은 멀리서도 잘 보이도록 늘 어둡게
+- **설정** — 효과음·음성·진동, 카운트다운 길이, 준비 시간, 테마, 화면 켜짐 유지, 체중
 
 ## 설치
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/app_scope.dart';
 import '../../data/routine_store.dart';
 import '../../engine/workout_plan.dart';
+import '../../l10n/l10n.dart';
 import '../../models/timer_mode.dart';
 import '../../models/workout_config.dart';
 import '../../theme/app_colors.dart';
@@ -67,8 +68,9 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
 
   void _save() {
     final name = _nameController.text.trim();
+    final s = context.l10n;
     final routine = _config.copyWith(
-      name: name.isEmpty ? '나의 ${_config.mode.label}' : name,
+      name: name.isEmpty ? s.myRoutineName(_config.mode.label(s)) : name,
       exercises: _supportsExercises ? _config.exercises : const [],
     );
     AppScope.of(context).routines.save(routine);
@@ -76,7 +78,12 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
   }
 
   Future<void> _delete() async {
-    final ok = await showConfirmDialog(context, title: '루틴을 삭제할까요?', confirmLabel: '삭제');
+    final s = context.l10n;
+    final ok = await showConfirmDialog(
+      context,
+      title: s.deleteRoutineTitle,
+      confirmLabel: s.delete,
+    );
     if (!ok || !mounted) return;
     AppScope.of(context).routines.delete(_config.id);
     Navigator.pop(context);
@@ -86,18 +93,19 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
   Widget build(BuildContext context) {
     final total = workoutDurationSec(_config);
     final palette = AppPalette.of(context);
+    final s = context.l10n;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: '닫기',
+          tooltip: s.close,
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(_isNew ? '새 루틴' : '루틴 편집'),
+        title: Text(_isNew ? s.newRoutine : s.editRoutine),
         actions: [
           if (!_isNew)
             IconButton(
-              tooltip: '삭제',
+              tooltip: s.delete,
               icon: Icon(Icons.delete_outline_rounded, color: palette.textSecondary),
               onPressed: _delete,
             ),
@@ -117,7 +125,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                       maxLength: 30,
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                       decoration: InputDecoration(
-                        hintText: '루틴 이름 (예: 아침 타바타)',
+                        hintText: s.routineNameHint,
                         counterText: '',
                         prefixIcon: Icon(Icons.edit_outlined, color: palette.textTertiary),
                         fillColor: palette.surface,
@@ -129,15 +137,15 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                       ),
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: SectionLabel('타이머 종류'),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: SectionLabel(s.timerType),
                   ),
                   ModeChips(selected: _config.mode, onChanged: _changeMode),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 12, 24, 14),
                     child: Text(
-                      _config.mode.description,
+                      _config.mode.description(s),
                       style: TextStyle(color: palette.textSecondary, fontSize: 14),
                     ),
                   ),
@@ -152,7 +160,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                     padding: const EdgeInsets.only(top: 16),
                     child: Center(
                       child: Text(
-                        total == null ? '시간 제한 없음' : '총 ${formatClock(total)}',
+                        total == null ? s.noTimeLimit : s.totalDuration(formatClock(total)),
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
@@ -167,7 +175,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-              child: PrimaryButton(label: '저장', onPressed: _save),
+              child: PrimaryButton(label: s.save, onPressed: _save),
             ),
           ],
         ),
@@ -178,10 +186,11 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
   List<Widget> _buildExercises() {
     final exercises = _config.exercises;
     final palette = AppPalette.of(context);
+    final s = context.l10n;
     return [
-      const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: SectionLabel('운동 이름 (선택)'),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: SectionLabel(s.exercisesOptional),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -194,8 +203,8 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                 padding: const EdgeInsets.fromLTRB(0, 6, 8, 6),
                 child: Text(
                   _config.mode == TimerMode.amrap || _config.mode == TimerMode.forTime
-                      ? '운동 화면에 표시되고 음성으로 안내돼요.'
-                      : '라운드마다 순서대로 반복돼요. 운동 화면과 음성으로 안내해요.',
+                      ? s.exercisesHintOpen
+                      : s.exercisesHintRounds,
                   style: TextStyle(color: palette.textTertiary, fontSize: 13),
                 ),
               ),
@@ -223,7 +232,7 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                           ),
                           Expanded(child: Text(exercises[i], style: const TextStyle(fontSize: 16))),
                           IconButton(
-                            tooltip: '삭제',
+                            tooltip: s.delete,
                             icon: const Icon(Icons.close_rounded, size: 20),
                             color: palette.textSecondary,
                             onPressed: () => _removeExercise(i),
@@ -240,11 +249,11 @@ class _RoutineEditorPageState extends State<RoutineEditorPage> {
                       controller: _exerciseController,
                       textInputAction: TextInputAction.done,
                       onSubmitted: (_) => _addExercise(),
-                      decoration: const InputDecoration(hintText: '예) 버피', isDense: true),
+                      decoration: InputDecoration(hintText: s.exerciseExample, isDense: true),
                     ),
                   ),
                   IconButton(
-                    tooltip: '운동 추가',
+                    tooltip: s.addExercise,
                     icon: const Icon(Icons.add_circle_rounded, color: AppColors.accent, size: 32),
                     onPressed: _addExercise,
                   ),

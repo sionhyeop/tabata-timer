@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 /// `m:ss`, or `h:mm:ss` from one hour.
 String formatClock(int totalSec) {
   if (totalSec < 0) totalSec = 0;
@@ -17,43 +19,13 @@ String formatElapsedMs(int ms) => formatClock(ms ~/ 1000);
 /// `m:ss.d` for lap splits.
 String formatLapMs(int ms) => '${formatClock(ms ~/ 1000)}.${(ms % 1000) ~/ 100}';
 
-/// Exact duration with units: "20초", "1분 30초", "2분".
-String formatDurationKo(int sec) =>
-    [for (final p in durationParts(sec)) p.text].join().replaceAll('\u2009', '');
+/// Short weekday for chart columns: "월" / "Mon".
+String weekdayLabel(DateTime d, String locale) => DateFormat.E(locale).format(d);
 
-/// [formatDurationKo] as number and unit pieces, so the two can be styled
-/// differently. Units carry a thin leading space; groups are space-separated.
-List<({String text, bool isUnit})> durationParts(int sec) {
-  final m = sec ~/ 60;
-  final s = sec % 60;
-  return [
-    if (m > 0) ...[(text: '$m', isUnit: false), (text: '\u2009분', isUnit: true)],
-    if (m > 0 && s > 0) (text: ' ', isUnit: true),
-    if (s > 0 || m == 0) ...[(text: '$s', isUnit: false), (text: '\u2009초', isUnit: true)],
-  ];
-}
+/// "10월 25일 (토)" / "Sat, Oct 25".
+String formatDateLabel(DateTime d, String locale) => DateFormat.MMMEd(locale).format(d);
 
-/// Human duration like "1시간 5분", "12분", "40초".
-String formatMinutesLabel(int totalSec) {
-  if (totalSec < 60) return '$totalSec초';
-  final h = totalSec ~/ 3600;
-  final m = (totalSec % 3600) ~/ 60;
-  if (h == 0) return '$m분';
-  return m == 0 ? '$h시간' : '$h시간 $m분';
-}
-
-const _weekdays = ['월', '화', '수', '목', '금', '토', '일'];
-
-String weekdayLabel(DateTime d) => _weekdays[d.weekday - 1];
-
-/// "10월 25일 (토)"
-String formatDateLabel(DateTime d) => '${d.month}월 ${d.day}일 (${weekdayLabel(d)})';
-
-/// "오후 9:30"
-String formatTimeOfDay(DateTime d) {
-  final pm = d.hour >= 12;
-  final h12 = d.hour % 12 == 0 ? 12 : d.hour % 12;
-  return '${pm ? '오후' : '오전'} $h12:${d.minute.toString().padLeft(2, '0')}';
-}
+/// "오후 9:30" / "9:30 PM".
+String formatTimeOfDay(DateTime d, String locale) => DateFormat.jm(locale).format(d);
 
 DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/timer_mode.dart';
 import '../../models/workout_config.dart';
 import '../../theme/app_colors.dart';
@@ -20,7 +21,7 @@ class ConfigPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fields = configFields(config, onChanged);
+    final fields = configFields(context.l10n, config, onChanged);
     final paired = config.mode == TimerMode.tabata || config.mode == TimerMode.interval;
     if (!paired) return ConfigGrid(fields: fields);
     return Column(
@@ -85,8 +86,8 @@ class WorkRestCard extends StatelessWidget {
 }
 
 /// "2 : 1" when the numbers reduce nicely, otherwise "2.8 : 1".
-String ratioLabel(int work, int rest) {
-  if (rest == 0) return '휴식 없음';
+String ratioLabel(AppLocalizations s, int work, int rest) {
+  if (rest == 0) return s.noRest;
   int gcd(int a, int b) => b == 0 ? a : gcd(b, a % b);
   final g = gcd(work, rest);
   final a = work ~/ g, b = rest ~/ g;
@@ -156,10 +157,15 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final workPct = (_fraction * 100).round();
+    final s = context.l10n;
     return Semantics(
-      label:
-          '운동 ${widget.work}초 $workPct퍼센트, 휴식 ${widget.rest}초 ${100 - workPct}퍼센트, '
-          '비율 ${ratioLabel(widget.work, widget.rest)}',
+      label: s.ratioSemantics(
+        widget.work,
+        workPct,
+        widget.rest,
+        100 - workPct,
+        ratioLabel(s, widget.work, widget.rest),
+      ),
       child: ExcludeSemantics(
         child: SizedBox(
           height: _barHeight + 6,
@@ -200,7 +206,7 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
                               top: 0,
                               bottom: 0,
                               child: _ShareLabel(
-                                full: '운동 $workPct%',
+                                full: s.workShare(workPct),
                                 short: '$workPct%',
                                 align: Alignment.centerLeft,
                               ),
@@ -211,7 +217,7 @@ class _RatioBarState extends State<RatioBar> with SingleTickerProviderStateMixin
                               top: 0,
                               bottom: 0,
                               child: _ShareLabel(
-                                full: restShown ? '휴식 ${100 - workPct}%' : '휴식 없음',
+                                full: restShown ? s.restShare(100 - workPct) : s.noRest,
                                 short: restShown ? '${100 - workPct}%' : '',
                                 align: Alignment.centerRight,
                               ),

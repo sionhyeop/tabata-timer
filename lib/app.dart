@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'data/app_scope.dart';
+import 'l10n/l10n.dart';
 import 'models/app_settings.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_theme.dart';
@@ -22,9 +22,9 @@ class TabataApp extends StatelessWidget {
     return AppScope(
       services: services,
       child: ListenableBuilder(
-        listenable: services.settings,
+        listenable: Listenable.merge([services.settings, services.language]),
         builder: (context, _) => MaterialApp(
-          title: '타바타 타이머',
+          onGenerateTitle: (context) => context.l10n.appTitle,
           debugShowCheckedModeBanner: false,
           theme: appLightTheme,
           darkTheme: appDarkTheme,
@@ -33,9 +33,11 @@ class TabataApp extends StatelessWidget {
             Appearance.light => ThemeMode.light,
             Appearance.dark => ThemeMode.dark,
           },
-          locale: const Locale('ko'),
-          supportedLocales: const [Locale('ko'), Locale('en')],
-          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          // Resolved by AppLanguageController so the voice and notification
+          // speak the same language as the screens.
+          locale: services.language.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
           builder: (context, child) => AnnotatedRegion(value: _systemBars(context), child: child!),
           home: const HomeShell(),
         ),
@@ -59,16 +61,16 @@ class TabataApp extends StatelessWidget {
 class _TabSpec {
   const _TabSpec(this.label, this.icon, this.selectedIcon);
 
-  final String label;
+  final String Function(AppLocalizations) label;
   final IconData icon;
   final IconData selectedIcon;
 }
 
-const _tabs = [
-  _TabSpec('타이머', Icons.timer_outlined, Icons.timer),
-  _TabSpec('루틴', Icons.view_agenda_outlined, Icons.view_agenda),
-  _TabSpec('기록', Icons.insert_chart_outlined, Icons.insert_chart),
-  _TabSpec('설정', Icons.settings_outlined, Icons.settings),
+final _tabs = [
+  _TabSpec((s) => s.tabTimer, Icons.timer_outlined, Icons.timer),
+  _TabSpec((s) => s.tabRoutines, Icons.view_agenda_outlined, Icons.view_agenda),
+  _TabSpec((s) => s.tabHistory, Icons.insert_chart_outlined, Icons.insert_chart),
+  _TabSpec((s) => s.tabSettings, Icons.settings_outlined, Icons.settings),
 ];
 
 class HomeShell extends StatefulWidget {
@@ -136,10 +138,11 @@ class _BarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
     final color = selected ? palette.textPrimary : palette.textTertiary;
+    final label = spec.label(context.l10n);
     return Semantics(
       selected: selected,
       button: true,
-      label: spec.label,
+      label: label,
       child: InkResponse(
         onTap: onTap,
         radius: 40,
@@ -150,7 +153,7 @@ class _BarItem extends StatelessWidget {
               Icon(selected ? spec.selectedIcon : spec.icon, color: color, size: 26),
               const SizedBox(height: 3),
               Text(
-                spec.label,
+                label,
                 style: TextStyle(
                   color: color,
                   fontSize: 11,

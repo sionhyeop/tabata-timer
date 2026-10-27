@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../engine/intensity.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/app_colors.dart';
 
 /// The effort face, optionally followed by five rising bars read like a
@@ -24,7 +25,7 @@ class IntensityMeter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '예상 강도 ${level.label}, 5단계 중 ${level.value}단계',
+      label: context.l10n.intensitySemantics(level.label(context.l10n), level.value),
       child: ExcludeSemantics(
         child: Row(
           mainAxisSize: MainAxisSize.min,

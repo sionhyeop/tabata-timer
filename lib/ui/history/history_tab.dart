@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/app_scope.dart';
 import '../../data/history_store.dart';
+import '../../l10n/l10n.dart';
 import '../../models/timer_mode.dart';
 import '../../models/workout_record.dart';
 import '../../theme/app_colors.dart';
@@ -19,6 +20,7 @@ class HistoryTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final history = AppScope.of(context).history;
     final palette = AppPalette.of(context);
+    final s = context.l10n;
     return SafeArea(
       bottom: false,
       child: ListenableBuilder(
@@ -27,16 +29,16 @@ class HistoryTab extends StatelessWidget {
           final now = DateTime.now();
           final records = history.records;
           final children = <Widget>[
-            const ScreenHeader(subtitle: '꾸준함이 실력이에요', title: '기록'),
+            ScreenHeader(subtitle: s.historyTagline, title: s.tabHistory),
             _WeekCard(week: history.weekStats(now), streak: history.streak(now), today: now),
-            const SectionLabel('최근 운동'),
+            SectionLabel(s.recentWorkouts),
           ];
           if (records.isEmpty) {
             children.add(
               Padding(
                 padding: const EdgeInsets.only(top: 40),
                 child: Text(
-                  '아직 기록이 없어요.\n첫 운동을 시작해 보세요!',
+                  s.noHistory,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: palette.textSecondary, height: 1.5),
                 ),
@@ -52,7 +54,7 @@ class HistoryTab extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
                   child: Text(
-                    day == dateOnly(now) ? '오늘' : formatDateLabel(day),
+                    day == dateOnly(now) ? s.today : formatDateLabel(day, s.localeName),
                     style: TextStyle(color: palette.textSecondary, fontSize: 13),
                   ),
                 ),
@@ -78,13 +80,14 @@ class _WeekCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = context.l10n;
     return AppCard(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '이번 주 운동 시간',
+            s.weekTime,
             style: TextStyle(color: AppPalette.of(context).textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 4),
@@ -92,7 +95,7 @@ class _WeekCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                formatMinutesLabel(week.totalSec),
+                formatMinutesLabel(s, week.totalSec),
                 style: const TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
@@ -100,10 +103,20 @@ class _WeekCard extends StatelessWidget {
                   height: 1.1,
                 ),
               ),
-              const Spacer(),
-              _Badge(text: '${week.count}회'),
-              const SizedBox(width: 6),
-              _Badge(text: streak > 0 ? '🔥 $streak일 연속' : '🔥 0일'),
+              const SizedBox(width: 12),
+              // Longer wording (English) stacks the badges instead of
+              // overflowing.
+              Expanded(
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    _Badge(text: s.workoutCount(week.count)),
+                    _Badge(text: streak > 0 ? s.streakDays(streak) : s.streakNone),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -137,20 +150,24 @@ class _RecordCard extends StatelessWidget {
 
   final WorkoutRecord record;
 
-  String get _details {
+  String _details(AppLocalizations s) {
     final r = record;
     final time = formatElapsedMs(r.activeMs);
     return switch (r.mode) {
-      TimerMode.amrap => '$time · ${r.amrapRounds}라운드 · ${r.kcal}kcal',
-      TimerMode.forTime =>
-        '완료 $time${r.laps.isNotEmpty ? ' · 랩 ${r.laps.length}' : ''} · ${r.kcal}kcal',
-      _ => '$time · ${r.workRounds}라운드 · ${r.kcal}kcal',
-    };
+      TimerMode.amrap => [time, s.rounds(r.amrapRounds), s.kcal(r.kcal)],
+      TimerMode.forTime => [
+        s.finishedIn(time),
+        if (r.laps.isNotEmpty) s.laps(r.laps.length),
+        s.kcal(r.kcal),
+      ],
+      _ => [time, s.rounds(r.workRounds), s.kcal(r.kcal)],
+    }.join(' · ');
   }
 
   Future<void> _delete(BuildContext context) async {
     final history = AppScope.of(context).history;
-    final ok = await showConfirmDialog(context, title: '기록을 삭제할까요?', confirmLabel: '삭제');
+    final s = context.l10n;
+    final ok = await showConfirmDialog(context, title: s.deleteRecordTitle, confirmLabel: s.delete);
     if (ok) history.delete(record.id);
   }
 
@@ -158,6 +175,7 @@ class _RecordCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final rpe = RpeLevel.of(record.rpe);
     final palette = AppPalette.of(context);
+    final s = context.l10n;
     return AppCard(
       padding: const EdgeInsets.fromLTRB(16, 14, 4, 14),
       onLongPress: () => _delete(context),
@@ -186,13 +204,13 @@ class _RecordCard extends StatelessWidget {
                     ),
                     if (!record.completed) ...[
                       const SizedBox(width: 6),
-                      Text('중단', style: TextStyle(color: palette.textTertiary, fontSize: 12)),
+                      Text(s.stopped, style: TextStyle(color: palette.textTertiary, fontSize: 12)),
                     ],
                   ],
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  _details,
+                  _details(s),
                   style: TextStyle(
                     color: palette.textSecondary,
                     fontSize: 13,
@@ -206,13 +224,13 @@ class _RecordCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                formatTimeOfDay(record.startedAt),
+                formatTimeOfDay(record.startedAt, s.localeName),
                 style: TextStyle(color: palette.textTertiary, fontSize: 12),
               ),
               if (rpe != null) ...[
                 const SizedBox(height: 4),
                 Tooltip(
-                  message: '강도 · ${rpe.label}',
+                  message: s.rpeTooltip(rpe.label(s)),
                   child: Container(
                     width: 30,
                     height: 30,
@@ -229,13 +247,13 @@ class _RecordCard extends StatelessWidget {
             ],
           ),
           PopupMenuButton<String>(
-            tooltip: '더보기',
+            tooltip: s.more,
             icon: Icon(Icons.more_vert, color: palette.textSecondary, size: 20),
             onSelected: (_) => _delete(context),
-            itemBuilder: (_) => const [
+            itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'delete',
-                child: Text('삭제', style: TextStyle(color: AppColors.accent)),
+                child: Text(s.delete, style: const TextStyle(color: AppColors.accent)),
               ),
             ],
           ),

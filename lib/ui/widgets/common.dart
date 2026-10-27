@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../theme/app_colors.dart';
 
 class AppCard extends StatelessWidget {
@@ -267,7 +268,7 @@ Future<bool> showConfirmDialog(
   BuildContext context, {
   required String title,
   String? message,
-  String cancelLabel = '취소',
+  String? cancelLabel,
   required String confirmLabel,
 }) async {
   final result = await showDialog<bool>(
@@ -305,7 +306,7 @@ Future<bool> showConfirmDialog(
               children: [
                 Expanded(
                   child: SecondaryButton(
-                    label: cancelLabel,
+                    label: cancelLabel ?? context.l10n.cancel,
                     onPressed: () => Navigator.pop(context, false),
                   ),
                 ),

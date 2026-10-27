@@ -1,6 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tabata_timer/data/history_store.dart';
 import 'package:tabata_timer/engine/workout_plan.dart';
+import 'package:tabata_timer/l10n/app_localizations.dart';
 import 'package:tabata_timer/models/interval_step.dart';
 import 'package:tabata_timer/models/timer_mode.dart';
 import 'package:tabata_timer/models/workout_config.dart';
@@ -17,6 +19,8 @@ WorkoutRecord record(DateTime at, {int minutes = 4}) => WorkoutRecord(
   activeMs: minutes * 60000,
   completed: true,
 );
+
+final ko = lookupAppLocalizations(const Locale('ko'));
 
 void main() {
   group('history stats', () {
@@ -106,10 +110,10 @@ void main() {
     });
 
     test('display', () {
-      expect(field(20).display, '20초');
-      expect(field(90).display, '1분 30초');
-      expect(field(120).display, '2분');
-      expect(field(5, kind: ValueKind.count).display, '5');
+      expect(field(20).display(ko), '20초');
+      expect(field(90).display(ko), '1분 30초');
+      expect(field(120).display(ko), '2분');
+      expect(field(5, kind: ValueKind.count).display(ko), '5');
       expect(
         ConfigField(
           label: 'x',
@@ -119,7 +123,7 @@ void main() {
           max: 60,
           zeroLabel: '없음',
           onChanged: (_) {},
-        ).display,
+        ).display(ko),
         '없음',
       );
     });
@@ -130,7 +134,7 @@ void main() {
         .copyWith(rounds: 2, sets: 2, exercises: ['스쿼트', '버피']);
     final steps = buildSteps(circuit, prepareSec: 10);
     String say(int i) =>
-        stepAnnouncement(steps[i], i + 1 < steps.length ? steps[i + 1] : null, circuit.mode);
+        stepAnnouncement(steps[i], i + 1 < steps.length ? steps[i + 1] : null, circuit.mode, ko);
 
     test('circuit flow', () {
       expect(say(0), '준비하세요. 첫 운동은 스쿼트');
@@ -144,17 +148,17 @@ void main() {
 
     test('plain intervals say 운동 시작 / 휴식', () {
       final tabata = buildSteps(WorkoutConfig.defaults(TimerMode.tabata));
-      expect(stepAnnouncement(tabata[0], tabata[1], TimerMode.tabata), '운동 시작');
-      expect(stepAnnouncement(tabata[1], tabata[2], TimerMode.tabata), '휴식');
-      expect(stepAnnouncement(tabata.last, null, TimerMode.tabata), '마지막 라운드! 운동 시작');
+      expect(stepAnnouncement(tabata[0], tabata[1], TimerMode.tabata, ko), '운동 시작');
+      expect(stepAnnouncement(tabata[1], tabata[2], TimerMode.tabata, ko), '휴식');
+      expect(stepAnnouncement(tabata.last, null, TimerMode.tabata, ko), '마지막 라운드! 운동 시작');
     });
 
     test('emom rounds and rest timer', () {
       final emom = buildSteps(WorkoutConfig.defaults(TimerMode.emom).copyWith(rounds: 3));
-      expect(stepAnnouncement(emom[0], emom[1], TimerMode.emom), '1라운드 시작');
-      expect(stepAnnouncement(emom[2], null, TimerMode.emom), '마지막 라운드 시작');
+      expect(stepAnnouncement(emom[0], emom[1], TimerMode.emom, ko), '1라운드 시작');
+      expect(stepAnnouncement(emom[2], null, TimerMode.emom, ko), '마지막 라운드 시작');
       final rest = buildSteps(WorkoutConfig.defaults(TimerMode.rest)).single;
-      expect(stepAnnouncement(rest, null, TimerMode.rest), '휴식 시작');
+      expect(stepAnnouncement(rest, null, TimerMode.rest, ko), '휴식 시작');
     });
   });
 }

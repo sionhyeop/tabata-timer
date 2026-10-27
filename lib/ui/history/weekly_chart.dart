@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../data/history_store.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
@@ -39,13 +40,13 @@ class _WeeklyBarChartState extends State<WeeklyBarChart> {
     final values = widget.stats.secondsPerDay;
     final maxValue = math.max(values.reduce(math.max), 60);
     final labeled = _labeled;
-    final summary = [
-      for (var i = 0; i < 7; i++)
-        '${weekdayLabel(widget.stats.days[i])} ${formatMinutesLabel(values[i])}',
-    ].join(', ');
+    final s = context.l10n;
+    String day(int i) => weekdayLabel(widget.stats.days[i], s.localeName);
+    final summary = [for (var i = 0; i < 7; i++) '${day(i)} ${formatMinutesLabel(s, values[i])}']
+        .join(', ');
 
     return Semantics(
-      label: '요일별 운동 시간: $summary',
+      label: s.weeklyChartSemantics(summary),
       child: ExcludeSemantics(
         child: SizedBox(
           height: 132,
@@ -58,7 +59,7 @@ class _WeeklyBarChartState extends State<WeeklyBarChart> {
                     behavior: HitTestBehavior.opaque,
                     onTap: () => setState(() => _selected = _selected == i ? null : i),
                     child: _DayColumn(
-                      label: weekdayLabel(widget.stats.days[i]),
+                      label: day(i),
                       value: values[i],
                       fraction: values[i] / maxValue,
                       isToday: i == _todayIndex,
@@ -108,7 +109,7 @@ class _DayColumn extends StatelessWidget {
           height: 18,
           child: showValue
               ? Text(
-                  formatMinutesLabel(value),
+                  formatMinutesLabel(context.l10n, value),
                   maxLines: 1,
                   overflow: TextOverflow.visible,
                   softWrap: false,

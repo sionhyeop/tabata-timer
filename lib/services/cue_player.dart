@@ -8,8 +8,10 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 import '../data/settings_store.dart';
 import '../engine/workout_cue.dart';
+import '../l10n/app_localizations.dart';
 import '../models/interval_step.dart';
 import '../models/timer_mode.dart';
+import 'app_language.dart';
 
 enum _Sound { tick, countdown, work, rest, finish }
 
@@ -42,15 +44,16 @@ class TtsVoice {
       'very low' => 5,
       _ => 15,
     };
-    return q - (networkRequired ? 30 : 0) + (locale.toLowerCase() == 'ko-kr' ? 1 : 0);
+    final home = const {'ko-kr', 'en-us'}.contains(locale.toLowerCase().replaceAll('_', '-'));
+    return q - (networkRequired ? 30 : 0) + (home ? 1 : 0);
   }
 
-  String get qualityLabel => switch (quality) {
-    'premium' => '프리미엄',
-    'enhanced' => '향상됨',
-    'very high' => '최고 음질',
-    'high' => '고음질',
-    _ => '기본',
+  String qualityLabel(AppLocalizations s) => switch (quality) {
+    'premium' => s.qualityPremium,
+    'enhanced' => s.qualityEnhanced,
+    'very high' => s.qualityVeryHigh,
+    'high' => s.qualityHigh,
+    _ => s.qualityDefault,
   };
 
   static TtsVoice? fromMap(Object? raw) {
@@ -69,10 +72,12 @@ class TtsVoice {
 
 /// Turns [WorkoutCue]s into beeps, voice and haptics, honoring settings.
 /// All audio mixes with other apps so the user's music keeps playing.
+/// The voice speaks the app's language.
 class CuePlayer {
-  CuePlayer(this._settings, {this.silent = false});
+  CuePlayer(this._settings, this._language, {this.silent = false});
 
   final SettingsStore _settings;
+  final AppLanguageController _language;
 
   /// No platform audio at all (tests).
   final bool silent;
@@ -101,7 +106,7 @@ class CuePlayer {
     }
     try {
       final tts = FlutterTts();
-      await tts.setLanguage('ko-KR');
+      await tts.setLanguage(_ttsLanguage);
       // The platform's own default rate reads most naturally.
       await tts.setSpeechRate(0.5);
       await tts.setPitch(1.0);
@@ -117,6 +122,7 @@ class CuePlayer {
       _tts = tts;
       await _applyVoice();
       _settings.addListener(_applyVoice);
+      _language.addListener(_onLanguageChanged);
     } catch (e) {
       debugPrint('CuePlayer: TTS init failed: $e');
     }
@@ -124,8 +130,21 @@ class CuePlayer {
 
   // --- Voices ----------------------------------------------------------------
 
-  /// Korean voices on this device, most natural first.
-  Future<List<TtsVoice>> koreanVoices() async {
+  String get _languageCode => _language.locale.languageCode;
+
+  String get _ttsLanguage => _languageCode == 'ko' ? 'ko-KR' : 'en-US';
+
+  Future<void> _onLanguageChanged() async {
+    try {
+      await _tts?.setLanguage(_ttsLanguage);
+    } catch (e) {
+      debugPrint('CuePlayer: setLanguage failed: $e');
+    }
+    await _applyVoice();
+  }
+
+  /// Voices for the app's language on this device, most natural first.
+  Future<List<TtsVoice>> voices() async {
     final tts = _tts;
     if (tts == null) return const [];
     try {
@@ -133,7 +152,7 @@ class CuePlayer {
       final voices = [
         for (final v in (raw as List? ?? const []))
           if (TtsVoice.fromMap(v) case final voice?)
-            if (voice.locale.toLowerCase().startsWith('ko')) voice,
+            if (voice.locale.toLowerCase().startsWith(_languageCode)) voice,
       ];
       voices.sort((a, b) => b.score.compareTo(a.score));
       return voices;
@@ -146,14 +165,14 @@ class CuePlayer {
   Future<void> _applyVoice() async {
     final tts = _tts;
     if (tts == null) return;
-    final s = _settings.value;
-    final key = s.voiceName == null ? 'auto' : '${s.voiceName}|${s.voiceLocale}';
+    final chosen = _settings.value.voiceFor(_languageCode);
+    final key = '$_languageCode|${chosen == null ? 'auto' : '${chosen.name}|${chosen.locale}'}';
     if (key == _appliedVoiceKey) return;
     _appliedVoiceKey = key;
-    var name = s.voiceName;
-    var locale = s.voiceLocale;
+    var name = chosen?.name;
+    var locale = chosen?.locale;
     if (name == null || locale == null) {
-      final best = (await koreanVoices()).firstOrNull;
+      final best = (await voices()).firstOrNull;
       if (best == null) return;
       name = best.name;
       locale = best.locale;
@@ -173,7 +192,7 @@ class CuePlayer {
       await tts.stop();
       await tts.setVoice({'name': voice.name, 'locale': voice.locale});
       _appliedVoiceKey = null; // restore the chosen voice on next apply
-      await tts.speak('운동 시작! 휴식. 다음은 버피');
+      await tts.speak(_language.strings.voiceSample);
     } catch (e) {
       debugPrint('CuePlayer: preview failed: $e');
     }
@@ -208,6 +227,7 @@ class CuePlayer {
   void handle(WorkoutCue cue, {required TimerMode mode, bool muted = false}) {
     final settings = _settings.value;
     final s = muted ? settings.copyWith(soundOn: false, voiceOn: false) : settings;
+    final words = _language.strings;
     switch (cue.type) {
       case CueType.tick:
         if (s.soundOn && s.tickOn) _play(_Sound.tick);
@@ -228,18 +248,21 @@ class CuePlayer {
           HapticFeedback.heavyImpact();
         }
         if (s.voiceOn) {
-          _speak(stepAnnouncement(step, cue.next, mode), afterBeep: s.soundOn && sound != null);
+          _speak(
+            stepAnnouncement(step, cue.next, mode, words),
+            afterBeep: s.soundOn && sound != null,
+          );
         }
       case CueType.halfway:
-        if (s.voiceOn) _speak('절반 지났어요');
+        if (s.voiceOn) _speak(words.voiceHalfway);
       case CueType.oneMinuteLeft:
-        if (s.voiceOn) _speak('1분 남았어요');
+        if (s.voiceOn) _speak(words.voiceOneMinute);
       case CueType.finished:
         if (s.soundOn) _play(_Sound.finish);
         if (s.vibrationOn) HapticFeedback.heavyImpact();
         if (s.voiceOn) {
           _speak(
-            mode == TimerMode.rest ? '휴식 끝. 다음 세트를 시작하세요' : '운동 완료! 수고하셨어요',
+            mode == TimerMode.rest ? words.voiceRestOver : words.voiceFinished,
             afterBeep: s.soundOn,
           );
         }
@@ -251,7 +274,7 @@ class CuePlayer {
     final s = _settings.value;
     if (s.soundOn) _play(_Sound.work);
     if (s.vibrationOn) HapticFeedback.heavyImpact();
-    if (s.voiceOn) _speak('운동 시작', afterBeep: s.soundOn);
+    if (s.voiceOn) _speak(_language.strings.voiceGo, afterBeep: s.soundOn);
   }
 
   void stopVoice() => _tts?.stop().catchError((_) => null);
@@ -286,36 +309,39 @@ class CuePlayer {
 /// What the voice says when [step] begins. Short, spoken-style phrases read
 /// most naturally with on-device TTS.
 @visibleForTesting
-String stepAnnouncement(IntervalStep step, IntervalStep? next, TimerMode mode) {
+String stepAnnouncement(IntervalStep step, IntervalStep? next, TimerMode mode, AppLocalizations s) {
   switch (step.phase) {
     case Phase.prepare:
       final first = next?.label;
-      return first == null ? '준비하세요' : '준비하세요. 첫 운동은 $first';
+      return first == null ? s.voiceGetReady : s.voiceGetReadyFirst(first);
     case Phase.warmup:
-      return '웜업 시작';
+      return s.voiceWarmup;
     case Phase.cooldown:
-      return '쿨다운. 수고하셨어요';
+      return s.voiceCooldown;
     case Phase.setRest:
-      return next != null && next.set > 0 ? '세트 휴식. 다음은 ${next.set}세트' : '세트 휴식';
+      return next != null && next.set > 0 ? s.voiceSetRestNext(next.set) : s.voiceSetRest;
     case Phase.rest:
-      if (mode == TimerMode.rest) return '휴식 시작';
+      if (mode == TimerMode.rest) return s.voiceRestStart;
       final upcoming = next?.phase == Phase.work ? next?.label : null;
-      return upcoming == null ? '휴식' : '휴식. 다음은 $upcoming';
+      return upcoming == null ? s.voiceRest : s.voiceRestNext(upcoming);
     case Phase.work:
       final name = step.label;
-      final go = name == null ? '운동 시작' : '$name 시작';
+      final go = name == null ? s.voiceGo : s.voiceNameGo(name);
       switch (mode) {
         case TimerMode.amrap:
         case TimerMode.forTime:
           return go;
         case TimerMode.emom:
-          final head = step.isLastRound ? '마지막 라운드' : '${step.round}라운드';
-          return name == null ? '$head 시작' : '$head. $name';
+          if (name == null) {
+            return step.isLastRound ? s.voiceLastRoundGo : s.voiceRoundGo(step.round);
+          }
+          final head = step.isLastRound ? s.voiceLastRound : s.voiceRound(step.round);
+          return '$head. $name';
         case TimerMode.tabata:
         case TimerMode.interval:
         case TimerMode.rest:
-          if (step.isLastRound) return '마지막 라운드! $go';
-          if (step.round == 1 && step.set > 1) return '${step.set}세트. $go';
+          if (step.isLastRound) return s.voiceLastRoundThen(go);
+          if (step.round == 1 && step.set > 1) return s.voiceSetThen(step.set, go);
           return go;
       }
   }

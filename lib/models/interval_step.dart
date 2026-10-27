@@ -1,15 +1,4 @@
-enum Phase {
-  prepare('준비'),
-  warmup('웜업'),
-  work('운동'),
-  rest('휴식'),
-  setRest('세트 휴식'),
-  cooldown('쿨다운');
-
-  const Phase(this.label);
-
-  final String label;
-}
+enum Phase { prepare, warmup, work, rest, setRest, cooldown }
 
 /// One segment of a workout timeline.
 class IntervalStep {

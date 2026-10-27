@@ -140,7 +140,8 @@
 | F-20 | 비율 막대 안 라벨(‘운동 67% · 휴식 33%’), 운동·휴식 카드 강조, 푸른-보라 오로라 배경, 로고 무게중심 정렬 | P1 | 6 |
 | F-21 | 라이트 모드(너무 밝지 않은 슬레이트 톤) + 설정 ‘테마: 시스템 · 라이트 · 다크’, 운동 화면은 항상 어둡게 | P1 | 7 |
 | F-13 | 백그라운드 진행 + 음악과 동시 재생 (Android 포그라운드 서비스·알림, iOS 백그라운드 오디오) | P1 | 5 |
-| F-14 | 워치·건강 앱 연동, 위젯, 공유, 다국어 | P2 | 백로그 |
+| F-22 | 다국어(한국어 · 영어): 화면·음성 안내·알림·기본 루틴·날짜/시간·앱 이름, 설정 ‘언어: 시스템 · 한국어 · English’ | P1 | 8 |
+| F-14 | 워치·건강 앱 연동, 위젯, 공유, 추가 언어 | P2 | 백로그 |
 
 ---
 
@@ -342,7 +343,7 @@ WorkoutRecord   id, name, mode, startedAt, activeMs, completed, workRounds,
                 amrapRounds, laps[], rpe(1~5), kcal
 AppSettings     soundOn, voiceOn, vibrationOn, countdownBeeps, halfwayAlert,
                 prepareSec, keepScreenOn, weightKg, tickOn, voiceName/voiceLocale,
-                appearance(system|light|dark)
+                appearance(system|light|dark), language(system|ko|en)
 ```
 저장소: `shared_preferences`(JSON). 서버 없음, 개인정보 수집 없음.
 
@@ -356,7 +357,8 @@ AppSettings     soundOn, voiceOn, vibrationOn, countdownBeeps, halfwayAlert,
 | 상태 관리 | `ChangeNotifier` + `InheritedWidget`(AppScope) | 외부 의존 최소, 코드 단순 |
 | 저장 | `shared_preferences` | 소량 JSON |
 | 효과음 | `audioplayers` (lowLatency) | 짧은 비프 저지연 재생, 믹싱 설정 |
-| 음성 | `flutter_tts` (ko-KR) | OS 내장 TTS |
+| 음성 | `flutter_tts` (ko-KR / en-US) | OS 내장 TTS, 앱 언어를 따름 |
+| 다국어 | `flutter_localizations` + gen-l10n(ARB) + `intl` | 문구는 `lib/l10n/app_*.arb`, 날짜·시간은 `DateFormat` |
 | 화면 유지 | `wakelock_plus` | 운동 중에만 활성 |
 | 진동 | Flutter `HapticFeedback` | 추가 의존 없음 |
 
@@ -366,7 +368,15 @@ AppSettings     soundOn, voiceOn, vibrationOn, countdownBeeps, halfwayAlert,
 - 위치(position) 하나로 현재 단계·남은 시간을 도출 → 건너뛰기는 위치 오프셋 조정만으로 처리
 - 큐(비프·음성·진동)는 엔진이 이벤트로 발행, 재생은 CuePlayer가 설정에 따라 처리 → 엔진 단위 테스트 가능
 
-### 10.2 폴더 구조
+### 10.2 다국어
+- 문구는 `lib/l10n/app_en.arb`(기준)·`app_ko.arb`에 두고 `flutter gen-l10n`이 `AppLocalizations`를 만든다. 두 파일의 키가 같은지 테스트로 확인
+- 언어는 `AppLanguageController`가 정한다: 설정이 ‘시스템’이면 기기 선호 언어 중 앱이 지원하는 첫 언어, 없으면 영어. 화면(`MaterialApp.locale`)과 음성·알림·기본 루틴이 같은 결과를 쓴다
+- 음성 안내는 앱 언어의 목소리 중 가장 자연스러운 것을 고르고, 사용자가 고른 목소리는 같은 언어일 때만 적용
+- 기본 루틴은 이름·운동 목록을 바꾸지 않았으면 언어를 따라가고, 사용자가 고친 루틴과 운동 기록은 그대로 둔다
+- 앱 이름: Android `values`/`values-ko` 문자열, iOS `en.lproj`/`ko.lproj`의 `InfoPlist.strings`
+- 새 언어 추가: `app_<언어>.arb` 추가 → `AppLanguage`에 항목 추가 → 네이티브 앱 이름 리소스 추가
+
+### 10.3 폴더 구조
 ```
 lib/
 ├─ main.dart, app.dart          앱 시작, 테마, 하단 탭 셸
@@ -374,7 +384,8 @@ lib/
 ├─ models/                      WorkoutConfig, IntervalStep, WorkoutRecord, AppSettings
 ├─ engine/                      단계 계산(workout_plan), 실행기(workout_runner), 큐
 ├─ data/                        저장소(설정·루틴·기록·타이머 설정), AppScope, 기본 루틴
-├─ services/                    CuePlayer(효과음·음성·진동), 칼로리 계산
+├─ l10n/                        ARB 문구, 생성된 AppLocalizations, 열거형·시간 표기 헬퍼
+├─ services/                    CuePlayer(효과음·음성·진동), 앱 언어, 칼로리 계산
 ├─ utils/                       시간·날짜 포맷
 └─ ui/                          timer / routines / history / settings / workout / widgets
 assets/sounds/                  합성 효과음(WAV)
@@ -400,7 +411,8 @@ tool/gen_sounds.py              효과음 생성 스크립트
 - [x] **12. 소리·백그라운드·조작감 개선** — 매초 신호음·긴 비프·음성 문구, 목소리 선택, 준비 5초·바로 시작, 백그라운드+음악 동시 재생, 운동·휴식 비율 카드, TIMER 로고 (F-13, F-16~18)
 - [x] **13. 알림 진행 바 · 디자인 다듬기** — 알림창 진행 바, 비율 막대 안 라벨, 카드 강조, 오로라 배경, 로고 정렬 (F-19, F-20)
 - [x] **14. 라이트 모드** — 슬레이트 톤 라이트 팔레트, 설정의 테마 선택(시스템·라이트·다크), 스플래시도 기기 설정에 맞춤 (F-21)
-- [ ] **15. 백로그** — iOS Live Activity(잠금화면·다이내믹 아일랜드 진행 표시), 워치·건강 앱, 홈 위젯, 루틴 공유, 다국어 (F-14)
+- [x] **15. 다국어** — 한국어·영어 문구 분리(ARB), 언어 설정, 영어 음성 안내, 기본 루틴·날짜·앱 이름 현지화 (F-22)
+- [ ] **16. 백로그** — iOS Live Activity(잠금화면·다이내믹 아일랜드 진행 표시), 워치·건강 앱, 홈 위젯, 루틴 공유, 추가 언어 (F-14)
 
 ---
 

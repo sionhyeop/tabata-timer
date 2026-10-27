@@ -5,16 +5,15 @@ import '../models/workout_config.dart';
 /// Five-step effort scale shared by the expected-intensity meter and the
 /// post-workout rating, so the same face always means the same effort.
 enum IntensityLevel {
-  light('😌', '가볍게'),
-  moderate('🙂', '적당히'),
-  vigorous('😤', '힘차게'),
-  hard('🥵', '고강도'),
-  extreme('🔥', '한계 도전');
+  light('😌'),
+  moderate('🙂'),
+  vigorous('😤'),
+  hard('🥵'),
+  extreme('🔥');
 
-  const IntensityLevel(this.emoji, this.label);
+  const IntensityLevel(this.emoji);
 
   final String emoji;
-  final String label;
 
   /// 1 – 5.
   int get value => index + 1;

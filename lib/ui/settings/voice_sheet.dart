@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../data/app_scope.dart';
+import '../../l10n/l10n.dart';
 import '../../services/cue_player.dart';
 import '../../theme/app_colors.dart';
 
-/// Lists the device's Korean TTS voices, most natural first, with a play
-/// button to compare them.
+/// Lists the device's TTS voices for the app language, most natural first,
+/// with a play button to compare them.
 Future<void> showVoiceSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
@@ -17,9 +18,9 @@ Future<void> showVoiceSheet(BuildContext context) {
 }
 
 /// "목소리 2 · 최고 음질" style label; Android voice names are codes.
-String voiceLabel(TtsVoice voice, int index) {
-  final base = Platform.isIOS ? voice.name : '목소리 ${index + 1}';
-  return voice.networkRequired ? '$base (온라인)' : base;
+String voiceLabel(AppLocalizations s, TtsVoice voice, int index) {
+  final base = Platform.isIOS ? voice.name : s.voiceNumber(index + 1);
+  return voice.networkRequired ? s.voiceOnline(base) : base;
 }
 
 class _VoiceSheet extends StatefulWidget {
@@ -30,13 +31,15 @@ class _VoiceSheet extends StatefulWidget {
 }
 
 class _VoiceSheetState extends State<_VoiceSheet> {
-  late final Future<List<TtsVoice>> _voices = AppScope.of(context).cues.koreanVoices();
+  late final Future<List<TtsVoice>> _voices = AppScope.of(context).cues.voices();
 
   @override
   Widget build(BuildContext context) {
     final services = AppScope.of(context);
     final settings = services.settings;
     final palette = AppPalette.of(context);
+    final l10n = context.l10n;
+    final language = services.language.locale.languageCode;
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.75),
       child: SafeArea(
@@ -55,38 +58,38 @@ class _VoiceSheetState extends State<_VoiceSheet> {
               return ListenableBuilder(
                 listenable: settings,
                 builder: (context, _) {
-                  final s = settings.value;
+                  final chosen = settings.value.voiceFor(language);
+                  bool isChosen(TtsVoice v) => chosen?.name == v.name && chosen?.locale == v.locale;
                   return ListView(
                     shrinkWrap: true,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
                         child: Text(
-                          '목소리',
+                          l10n.voice,
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                         ),
                       ),
                       _VoiceRow(
-                        title: '자동 (추천)',
-                        subtitle: '기기에서 가장 자연스러운 한국어 목소리',
-                        selected: s.voiceName == null,
+                        title: l10n.voiceAuto,
+                        subtitle: l10n.voiceAutoSub,
+                        selected: !voices.any(isChosen),
                         onTap: () => settings.update((s) => s.copyWith(clearVoice: true)),
                       ),
                       if (voices.isEmpty)
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: Text(
-                            '한국어 음성을 찾지 못했어요. 기기 설정에서 한국어 음성(TTS)을 설치해 주세요.',
+                            l10n.noVoices,
                             style: TextStyle(color: palette.textSecondary, height: 1.5),
                           ),
                         ),
                       for (var i = 0; i < voices.length; i++)
                         _VoiceRow(
-                          title: voiceLabel(voices[i], i),
-                          subtitle: '${voices[i].qualityLabel} · ${voices[i].name}',
-                          selected:
-                              s.voiceName == voices[i].name && s.voiceLocale == voices[i].locale,
+                          title: voiceLabel(l10n, voices[i], i),
+                          subtitle: '${voices[i].qualityLabel(l10n)} · ${voices[i].name}',
+                          selected: isChosen(voices[i]),
                           onTap: () => settings.update(
                             (s) => s.copyWith(voice: (voices[i].name, voices[i].locale)),
                           ),
@@ -95,9 +98,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                         child: Text(
-                          Platform.isIOS
-                              ? '더 자연스러운 목소리가 필요하면 설정 › 손쉬운 사용 › 읽기 및 말하기 › 음성 › 한국어에서 ‘향상됨’ 또는 ‘프리미엄’ 음성을 내려받으세요.'
-                              : '더 자연스러운 목소리가 필요하면 설정 › 일반 › 글자 읽어주기에서 Google 음성 엔진의 한국어 음성 데이터를 설치하세요. (삼성 TTS는 다른 앱에서 쓸 수 없어요)',
+                          Platform.isIOS ? l10n.voiceTipIos : l10n.voiceTipAndroid,
                           style: TextStyle(color: palette.textTertiary, fontSize: 12, height: 1.5),
                         ),
                       ),
@@ -163,7 +164,7 @@ class _VoiceRow extends StatelessWidget {
               ),
               if (onPreview != null)
                 IconButton(
-                  tooltip: '미리 듣기',
+                  tooltip: context.l10n.previewVoice,
                   onPressed: onPreview,
                   icon: const Icon(Icons.play_circle_outline_rounded),
                   color: palette.textSecondary,

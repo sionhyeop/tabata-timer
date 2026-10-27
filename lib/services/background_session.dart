@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
+import '../l10n/app_localizations.dart';
 import 'workout_notice.dart';
 
 /// Keeps a workout running on Android while the screen is off or another
@@ -19,13 +20,18 @@ abstract final class BackgroundSession {
   static const _serviceId = 120;
   static const _notice = MethodChannel('tabata_timer/workout_notification');
 
-  static void init() {
+  /// The notification channel as named in Settings › Notifications.
+  static var _channel = (name: '', description: '');
+
+  /// Call again when the app language changes so the channel is renamed.
+  static void init(AppLocalizations s) {
     if (!_supported) return;
+    _channel = (name: s.channelName, description: s.channelDescription);
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'workout',
-        channelName: '운동 진행',
-        channelDescription: '운동 중 타이머가 화면 밖에서도 계속 동작해요',
+        channelName: s.channelName,
+        channelDescription: s.channelDescription,
         onlyAlertOnce: true,
       ),
       iosNotificationOptions: const IOSNotificationOptions(showNotification: false),
@@ -74,7 +80,11 @@ abstract final class BackgroundSession {
   static Future<void> show(WorkoutNotice notice) async {
     if (!_supported) return;
     try {
-      await _notice.invokeMethod<void>('show', notice.toMap());
+      await _notice.invokeMethod<void>('show', {
+        ...notice.toMap(),
+        'channelName': _channel.name,
+        'channelDescription': _channel.description,
+      });
     } catch (e) {
       debugPrint('BackgroundSession: notice failed: $e');
     }

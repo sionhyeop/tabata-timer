@@ -38,8 +38,11 @@ void main() {
     await prefs.clear();
     final services = AppServices(prefs);
     await services.cues.init();
-    // Dark first whatever the simulator's appearance; light comes at the end.
-    services.settings.update((s) => s.copyWith(appearance: Appearance.dark));
+    // Dark and Korean first whatever the simulator's settings; light mode
+    // and English come at the end.
+    services.settings.update(
+      (s) => s.copyWith(appearance: Appearance.dark, language: AppLanguage.ko),
+    );
 
     // Recent sessions on consecutive days (relative to now, so the streak
     // and list look right whatever time the test runs).
@@ -202,6 +205,62 @@ void main() {
     await tester.pumpAndSettle();
     await shot(tester, '19_light_summary');
     await tester.tap(find.text('닫기'));
+    await tester.pumpAndSettle();
+
+    // English.
+    services.settings.update(
+      (s) => s.copyWith(appearance: Appearance.dark, language: AppLanguage.en),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Timer').last);
+    await tester.pumpAndSettle();
+    await shot(tester, '20_en_home');
+
+    await tester.tap(find.text('Interval'));
+    await tester.pumpAndSettle();
+    await shot(tester, '21_en_interval');
+    await tester.tap(find.text('Tabata').first);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Start'));
+    await wait(tester, 1500);
+    await tester.tap(find.byTooltip('Start now'));
+    await wait(tester, 2200);
+    await shot(tester, '22_en_workout');
+    await tester.tap(find.byTooltip('End'));
+    await tester.pumpAndSettle();
+    await shot(tester, '23_en_stop_dialog');
+    await tester.tap(find.text('End'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Routines'));
+    await tester.pumpAndSettle();
+    await shot(tester, '24_en_routines');
+
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
+    await shot(tester, '25_en_history');
+
+    await tester.tap(find.text('Settings').last);
+    await tester.pumpAndSettle();
+    await shot(tester, '26_en_settings');
+    await tester.scrollUntilVisible(find.text('English'), 200);
+    await tester.drag(find.text('Language'), const Offset(0, -150));
+    await tester.pumpAndSettle();
+    await shot(tester, '27_en_settings_display');
+
+    unawaited(
+      Navigator.of(tester.element(find.byType(HomeShell))).push(
+        MaterialPageRoute<void>(
+          builder: (_) => SummaryPage(record: services.history.records.first),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hard'));
+    await tester.pumpAndSettle();
+    await shot(tester, '28_en_summary');
+    await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
 
     await prefs.clear();

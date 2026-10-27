@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/app_scope.dart';
 import '../../engine/intensity.dart';
 import '../../engine/workout_plan.dart';
+import '../../l10n/l10n.dart';
 import '../../models/workout_config.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
@@ -20,10 +21,11 @@ class RoutinesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = AppScope.of(context).routines;
+    final s = context.l10n;
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
-        tooltip: '새 루틴',
+        tooltip: s.newRoutine,
         backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,
         shape: const CircleBorder(),
@@ -39,12 +41,12 @@ class RoutinesTab extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
               children: [
-                ScreenHeader(subtitle: '${routines.length}개의 루틴', title: '내 루틴'),
+                ScreenHeader(subtitle: s.routineCount(routines.length), title: s.myRoutines),
                 if (routines.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 80),
                     child: Text(
-                      '저장된 루틴이 없어요.\n＋ 버튼으로 나만의 루틴을 만들어 보세요.',
+                      s.noRoutines,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppPalette.of(context).textSecondary, height: 1.5),
                     ),
@@ -83,6 +85,7 @@ class _RoutineCard extends StatelessWidget {
     final total = workoutDurationSec(routine);
     final intensity = estimateIntensity(routine);
     final palette = AppPalette.of(context);
+    final s = context.l10n;
     return AppCard(
       padding: const EdgeInsets.fromLTRB(16, 10, 4, 14),
       onTap: () => openRoutineEditor(context, routine),
@@ -116,15 +119,15 @@ class _RoutineCard extends StatelessWidget {
                 ),
               ),
               PopupMenuButton<_MenuAction>(
-                tooltip: '더보기',
+                tooltip: s.more,
                 icon: Icon(Icons.more_vert, color: palette.textSecondary, size: 20),
                 onSelected: (action) => _onMenu(context, action),
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: _MenuAction.edit, child: Text('편집')),
-                  PopupMenuItem(value: _MenuAction.duplicate, child: Text('복제')),
+                itemBuilder: (_) => [
+                  PopupMenuItem(value: _MenuAction.edit, child: Text(s.edit)),
+                  PopupMenuItem(value: _MenuAction.duplicate, child: Text(s.duplicate)),
                   PopupMenuItem(
                     value: _MenuAction.delete,
-                    child: Text('삭제', style: TextStyle(color: AppColors.accent)),
+                    child: Text(s.delete, style: const TextStyle(color: AppColors.accent)),
                   ),
                 ],
               ),
@@ -140,7 +143,7 @@ class _RoutineCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _BigSummary(parts: routine.summaryParts),
+                      _BigSummary(parts: routine.summaryParts(s)),
                       if (routine.exercises.isNotEmpty) ...[
                         const SizedBox(height: 6),
                         Text(
@@ -157,7 +160,7 @@ class _RoutineCard extends StatelessWidget {
               const SizedBox(width: 8),
               Semantics(
                 button: true,
-                label: '${routine.name} 시작',
+                label: s.startRoutine(routine.name),
                 child: Material(
                   color: AppColors.accent,
                   shape: const CircleBorder(),
@@ -182,17 +185,18 @@ class _RoutineCard extends StatelessWidget {
 
   Future<void> _onMenu(BuildContext context, _MenuAction action) async {
     final store = AppScope.of(context).routines;
+    final s = context.l10n;
     switch (action) {
       case _MenuAction.edit:
         await openRoutineEditor(context, routine);
       case _MenuAction.duplicate:
-        store.duplicate(routine);
+        store.duplicate(routine, name: s.routineCopyName(routine.name));
       case _MenuAction.delete:
         final ok = await showConfirmDialog(
           context,
-          title: '루틴을 삭제할까요?',
-          message: '‘${routine.name}’ 루틴이 삭제돼요.',
-          confirmLabel: '삭제',
+          title: s.deleteRoutineTitle,
+          message: s.deleteRoutineMessage(routine.name),
+          confirmLabel: s.delete,
         );
         if (ok) store.delete(routine.id);
     }
@@ -237,7 +241,8 @@ class _TitleBox extends StatelessWidget {
   }
 }
 
-/// "운동 20초  휴식 10초  ×8라운드 ×2세트": durations large, repeat counts
+/// "운동 20초  휴식 10초  ×8라운드 ×2세트" / "Work 20 sec  Rest 10 sec
+/// ×8 rounds ×2 sets": durations large, repeat counts
 /// small; wraps between items, never inside one.
 class _BigSummary extends StatelessWidget {
   const _BigSummary({required this.parts});

@@ -32,7 +32,7 @@ object WorkoutNotification {
 
     fun show(context: Context, args: Map<*, *>) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
-        ensureChannel(manager)
+        ensureChannel(manager, args["channelName"] as? String, args["channelDescription"] as? String)
 
         val title = args["title"] as? String ?: return
         val text = args["text"] as? String ?: ""
@@ -173,11 +173,16 @@ object WorkoutNotification {
         return Color.argb(255, mix(Color.red(color)), mix(Color.green(color)), mix(Color.blue(color)))
     }
 
-    private fun ensureChannel(manager: NotificationManager) {
-        if (Build.VERSION.SDK_INT < 26 || manager.getNotificationChannel(CHANNEL) != null) return
+    /**
+     * Creates the channel, or renames it in the app's current language
+     * (creating an existing channel updates only its name and description).
+     */
+    private fun ensureChannel(manager: NotificationManager, name: String?, description: String?) {
+        if (Build.VERSION.SDK_INT < 26) return
+        if (name.isNullOrEmpty() && manager.getNotificationChannel(CHANNEL) != null) return
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, "운동 진행", NotificationManager.IMPORTANCE_LOW).apply {
-                description = "운동 중 타이머가 화면 밖에서도 계속 동작해요"
+            NotificationChannel(CHANNEL, name.orEmpty().ifEmpty { "Workout" }, NotificationManager.IMPORTANCE_LOW).apply {
+                this.description = description
                 setShowBadge(false)
             },
         )

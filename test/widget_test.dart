@@ -5,11 +5,14 @@ import 'package:tabata_timer/app.dart';
 import 'package:tabata_timer/data/app_scope.dart';
 import 'package:tabata_timer/ui/widgets/aurora_background.dart';
 
-Future<AppServices> pumpApp(WidgetTester tester) async {
+Future<AppServices> pumpApp(WidgetTester tester, {Locale locale = const Locale('ko', 'KR')}) async {
   AuroraBackground.motion = false;
   tester.view.physicalSize = const Size(1179, 2556);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
+  // A Korean device, unless a test picks another language.
+  tester.platformDispatcher.localesTestValue = [locale];
+  addTearDown(tester.platformDispatcher.clearLocalesTestValue);
 
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();

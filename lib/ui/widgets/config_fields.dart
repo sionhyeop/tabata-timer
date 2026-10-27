@@ -1,5 +1,6 @@
 import 'package:flutter/painting.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/timer_mode.dart';
 import '../../models/workout_config.dart';
 import '../../theme/app_colors.dart';
@@ -7,7 +8,11 @@ import 'value_tile.dart';
 
 /// The adjustable values for a config's mode. Shared by the Timer tab and
 /// the routine editor so both look and behave the same.
-List<ConfigField> configFields(WorkoutConfig c, void Function(WorkoutConfig updated) onChanged) {
+List<ConfigField> configFields(
+  AppLocalizations s,
+  WorkoutConfig c,
+  void Function(WorkoutConfig updated) onChanged,
+) {
   ConfigField duration(
     String label,
     int value,
@@ -37,21 +42,21 @@ List<ConfigField> configFields(WorkoutConfig c, void Function(WorkoutConfig upda
         onChanged: (v) => onChanged(apply(v)),
       );
 
-  final work = duration('운동', c.workSec, (v) => c.copyWith(workSec: v), min: 5);
+  final work = duration(s.phaseWork, c.workSec, (v) => c.copyWith(workSec: v), min: 5);
   final rest = duration(
-    '휴식',
+    s.phaseRest,
     c.restSec,
     (v) => c.copyWith(restSec: v),
-    zeroLabel: '없음',
+    zeroLabel: s.none,
     dot: AppColors.rest,
   );
-  final rounds = count('라운드', c.rounds, (v) => c.copyWith(rounds: v));
-  final sets = count('세트', c.sets, (v) => c.copyWith(sets: v), max: 20);
+  final rounds = count(s.fieldRounds, c.rounds, (v) => c.copyWith(rounds: v));
+  final sets = count(s.fieldSets, c.sets, (v) => c.copyWith(sets: v), max: 20);
   final setRest = duration(
-    '세트 간 휴식',
+    s.fieldSetRest,
     c.setRestSec,
     (v) => c.copyWith(setRestSec: v),
-    zeroLabel: '없음',
+    zeroLabel: s.none,
     dot: AppColors.setRest,
   );
 
@@ -64,30 +69,33 @@ List<ConfigField> configFields(WorkoutConfig c, void Function(WorkoutConfig upda
       sets,
       setRest,
       duration(
-        '웜업',
+        s.phaseWarmup,
         c.warmupSec,
         (v) => c.copyWith(warmupSec: v),
-        zeroLabel: '없음',
+        zeroLabel: s.none,
         dot: AppColors.warmCool,
       ),
       duration(
-        '쿨다운',
+        s.phaseCooldown,
         c.cooldownSec,
         (v) => c.copyWith(cooldownSec: v),
-        zeroLabel: '없음',
+        zeroLabel: s.none,
         dot: AppColors.warmCool,
       ),
     ],
-    TimerMode.emom => [duration('간격', c.workSec, (v) => c.copyWith(workSec: v), min: 10), rounds],
+    TimerMode.emom => [
+      duration(s.fieldInterval, c.workSec, (v) => c.copyWith(workSec: v), min: 10),
+      rounds,
+    ],
     TimerMode.amrap => [
-      duration('제한 시간', c.workSec, (v) => c.copyWith(workSec: v), min: 30, max: 7200),
+      duration(s.timeLimit, c.workSec, (v) => c.copyWith(workSec: v), min: 30, max: 7200),
     ],
     TimerMode.forTime => [
-      duration('타임캡', c.workSec, (v) => c.copyWith(workSec: v), max: 7200, zeroLabel: '없음'),
+      duration(s.timeCap, c.workSec, (v) => c.copyWith(workSec: v), max: 7200, zeroLabel: s.none),
     ],
     TimerMode.rest => [
       duration(
-        '휴식 시간',
+        s.fieldRestTime,
         c.workSec,
         (v) => c.copyWith(workSec: v),
         min: 5,

@@ -17,6 +17,7 @@ import '../../services/background_session.dart';
 import '../../services/calorie.dart';
 import '../../services/workout_notice.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
 import '../widgets/common.dart';
@@ -48,6 +49,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
   bool _handledFinish = false;
 
   TimerMode get _mode => widget.config.mode;
+  AppLocalizations get _s => context.l10n;
   bool get _isMultiStep =>
       _mode == TimerMode.tabata || _mode == TimerMode.interval || _mode == TimerMode.emom;
 
@@ -67,7 +69,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Keep running with the screen off or behind a music app.
       await _services.cues.beginWorkout();
-      await BackgroundSession.start(title: widget.config.name, text: '곧 시작해요');
+      await BackgroundSession.start(title: widget.config.name, text: _s.startingSoon);
       if (mounted) _runner.start();
     });
   }
@@ -109,21 +111,26 @@ class _WorkoutPageState extends State<WorkoutPage> {
     final phase = step.phase == Phase.work && step.label != null && _isMultiStep
         ? step.label!
         : _phaseTitle(step);
+    final s = _s;
     final round = step.totalRounds > 0 && step.phase != Phase.prepare
-        ? ' · 라운드 ${step.round}/${step.totalRounds}'
+        ? ' · ${s.noticeRound(step.round, step.totalRounds)}'
         : '';
     final details = [
       widget.config.name,
-      if (step.totalSets > 1) '세트 ${step.set}/${step.totalSets}',
-      if (_mode == TimerMode.amrap && step.phase == Phase.work) '완료 ${_runner.amrapRounds}라운드',
-      if (next != null) '다음 ${_describe(next)}' else if (step.phase != Phase.prepare) '마지막 구간',
+      if (step.totalSets > 1) s.noticeSet(step.set, step.totalSets),
+      if (_mode == TimerMode.amrap && step.phase == Phase.work)
+        s.noticeRoundsDone(_runner.amrapRounds),
+      if (next != null)
+        s.noticeNext(_describe(next))
+      else if (step.phase != Phase.prepare)
+        s.noticeLast,
     ];
     BackgroundSession.show(
       WorkoutNotice(
         title: '$phase$round',
         text: details.join(' · '),
         time: _runner.isPaused
-            ? '일시정지'
+            ? s.paused
             : step.countUp || remaining == null
             ? formatElapsedMs(_runner.stepElapsedMs)
             : formatRemainingMs(remaining),
@@ -190,9 +197,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
     final willRecord = _mode != TimerMode.rest && _runner.activeMs >= 30000;
     final ok = await showConfirmDialog(
       context,
-      title: '운동을 종료할까요?',
-      message: willRecord ? '지금까지 한 운동은 기록에 남아요.' : null,
-      confirmLabel: '종료',
+      title: _s.stopTitle,
+      message: willRecord ? _s.stopMessage : null,
+      confirmLabel: _s.stopConfirm,
     );
     if (!ok || !mounted) return;
     _services.cues.stopVoice();
@@ -276,7 +283,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      restDone ? '휴식 끝!' : _phaseTitle(step),
+                      restDone ? _s.restOver : _phaseTitle(step),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 34,
@@ -293,7 +300,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         child: _runner.isPaused
                             ? const _PausedBadge()
                             : Text(
-                                restDone ? '다음 세트를 시작하세요' : _phaseSubtitle(step),
+                                restDone ? _s.startNextSet : _phaseSubtitle(step),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -346,7 +353,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     if (showSets) ...[
                       const SizedBox(height: 14),
                       Text(
-                        '세트 ${step.set} / ${step.totalSets}',
+                        _s.setOf(step.set, step.totalSets),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 17,
@@ -380,12 +387,12 @@ class _WorkoutPageState extends State<WorkoutPage> {
   // --- Texts ---------------------------------------------------------------
 
   String _phaseTitle(IntervalStep step) {
-    if (step.phase != Phase.work) return step.phase.label;
+    if (step.phase != Phase.work) return step.phase.label(_s);
     return switch (_mode) {
       TimerMode.emom => 'EMOM',
       TimerMode.amrap => 'AMRAP',
       TimerMode.forTime => 'FOR TIME',
-      _ => '운동',
+      _ => _s.phaseWork,
     };
   }
 
@@ -393,22 +400,22 @@ class _WorkoutPageState extends State<WorkoutPage> {
     switch (step.phase) {
       case Phase.prepare:
         final first = _runner.next?.label;
-        return first == null ? '곧 시작해요' : '첫 운동 · $first';
+        return first == null ? _s.startingSoon : _s.firstExercise(first);
       case Phase.work:
         if (step.label != null) return step.label!;
-        if (step.isLastRound) return '마지막 라운드!';
-        return _mode == TimerMode.forTime ? '최대한 빠르게' : '힘내요!';
+        if (step.isLastRound) return _s.lastRoundExclaim;
+        return _mode == TimerMode.forTime ? _s.asFastAsYouCan : _s.keepGoing;
       case Phase.rest:
       case Phase.setRest:
         final upcoming = _runner.next;
         if (upcoming?.phase == Phase.work && upcoming?.label != null) {
-          return '다음 · ${upcoming!.label}';
+          return _s.nextUp(upcoming!.label!);
         }
-        return '호흡을 가다듬어요';
+        return _s.catchBreath;
       case Phase.warmup:
-        return '가볍게 몸을 풀어요';
+        return _s.warmupSub;
       case Phase.cooldown:
-        return '천천히 정리해요';
+        return _s.cooldownSub;
     }
   }
 
@@ -423,21 +430,23 @@ class _WorkoutPageState extends State<WorkoutPage> {
   String _ringCaption(IntervalStep step) {
     switch (step.phase) {
       case Phase.prepare:
-        return '시작까지';
+        return _s.untilStart;
       case Phase.setRest:
-        return '세트 ${step.set} 완료';
+        return _s.setDone(step.set);
       case Phase.warmup:
       case Phase.cooldown:
-        return '남은 시간';
+        return _s.timeLeft;
       case Phase.rest:
-        if (_mode == TimerMode.rest) return '남은 휴식';
-        return '라운드 ${step.round} / ${step.totalRounds}';
+        if (_mode == TimerMode.rest) return _s.restLeft;
+        return _s.roundOf(step.round, step.totalRounds);
       case Phase.work:
         return switch (_mode) {
-          TimerMode.amrap => '남은 시간',
+          TimerMode.amrap => _s.timeLeft,
           TimerMode.forTime =>
-            step.durationMs == null ? '경과 시간' : '타임캡 ${formatClock(step.durationMs! ~/ 1000)}',
-          _ => '라운드 ${step.round} / ${step.totalRounds}',
+            step.durationMs == null
+                ? _s.elapsedTime
+                : _s.timeCapAt(formatClock(step.durationMs! ~/ 1000)),
+          _ => _s.roundOf(step.round, step.totalRounds),
         };
     }
   }
@@ -462,10 +471,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
       Phase.work => switch (_mode) {
         TimerMode.amrap => 'AMRAP$d',
         TimerMode.forTime => s.label ?? 'For Time',
-        TimerMode.emom => '${s.round}라운드${s.label != null ? ' · ${s.label}' : ''}',
-        _ => '${s.label ?? '운동'}$d',
+        TimerMode.emom => '${_s.roundN(s.round)}${s.label != null ? ' · ${s.label}' : ''}',
+        _ => '${s.label ?? _s.phaseWork}$d',
       },
-      _ => '${s.phase.label}$d',
+      _ => '${s.phase.label(_s)}$d',
     };
   }
 
@@ -476,12 +485,12 @@ class _WorkoutPageState extends State<WorkoutPage> {
       return Row(
         children: [
           Expanded(
-            child: _GlassButton(label: '닫기', onTap: () => Navigator.pop(context)),
+            child: _GlassButton(label: _s.close, onTap: () => Navigator.pop(context)),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: _GlassButton(
-              label: '다시 휴식',
+              label: _s.restAgain,
               icon: Icons.replay_rounded,
               solid: true,
               foreground: base,
@@ -493,7 +502,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
     }
     if (step.phase == Phase.prepare) {
       return _GlassButton(
-        label: '바로 시작',
+        label: _s.startNow,
         icon: Icons.fast_forward_rounded,
         solid: true,
         foreground: base,
@@ -520,7 +529,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
         children: [
           Expanded(
             child: _GlassButton(
-              label: laps.isEmpty ? '랩' : '랩 ${laps.length} · ${formatLapMs(laps.last)}',
+              label: laps.isEmpty ? _s.lap : '${_s.lapN(laps.length)} · ${formatLapMs(laps.last)}',
               icon: Icons.flag_outlined,
               onTap: () {
                 HapticFeedback.mediumImpact();
@@ -531,7 +540,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
           const SizedBox(width: 12),
           Expanded(
             child: _GlassButton(
-              label: '완료',
+              label: _s.done,
               icon: Icons.check_rounded,
               solid: true,
               foreground: base,
@@ -543,13 +552,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
     }
     if (_mode == TimerMode.rest) {
       return _GlassButton(
-        label: '+15초',
+        label: '+${_s.durationSec(15)}',
         icon: Icons.more_time_rounded,
         onTap: () => _runner.addTime(const Duration(seconds: 15)),
       );
     }
     final upcoming = _runner.next;
-    return _InfoPill(text: upcoming == null ? '마지막이에요. 끝까지!' : '다음  ·  ${_describe(upcoming)}');
+    return _InfoPill(
+      text: upcoming == null ? _s.lastOneFinishStrong : _s.nextPill(_describe(upcoming)),
+    );
   }
 
   Widget _buildTotals() {
@@ -567,10 +578,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
       child: Row(
         children: [
-          Text('경과 ${formatElapsedMs(elapsed)}', style: style),
+          Text(_s.elapsedShort(formatElapsedMs(elapsed)), style: style),
           const Spacer(),
           if (remaining != null && _mode != TimerMode.rest)
-            Text('남은 ${formatRemainingMs(remaining)}', style: style),
+            Text(_s.remainingShort(formatRemainingMs(remaining)), style: style),
         ],
       ),
     );
@@ -586,13 +597,13 @@ class _WorkoutPageState extends State<WorkoutPage> {
         children: [
           _RoundIconButton(
             icon: Icons.skip_previous_rounded,
-            tooltip: '이전',
+            tooltip: _s.previous,
             visible: _isMultiStep,
             onTap: _runner.skipPrevious,
           ),
           Semantics(
             button: true,
-            label: _runner.isPaused ? '재개' : '일시정지',
+            label: _runner.isPaused ? _s.resume : _s.pause,
             child: Material(
               color: Colors.white,
               shape: const CircleBorder(),
@@ -616,7 +627,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
           ),
           _RoundIconButton(
             icon: Icons.skip_next_rounded,
-            tooltip: preparing ? '바로 시작' : '다음',
+            tooltip: preparing ? _s.startNow : _s.next,
             visible: canSkip,
             onTap: _runner.skipNext,
           ),
@@ -643,12 +654,13 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Row(
         children: [
           IconButton(
-            tooltip: '종료',
+            tooltip: s.stopConfirm,
             onPressed: onClose,
             icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
           ),
@@ -666,7 +678,7 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: muted ? '소리 켜기' : '소리 끄기',
+            tooltip: muted ? s.unmute : s.mute,
             onPressed: onToggleMute,
             icon: Icon(
               muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
@@ -691,8 +703,8 @@ class _PausedBadge extends StatelessWidget {
         color: Colors.white.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
-        '일시정지',
+      child: Text(
+        context.l10n.paused,
         style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
       ),
     );
@@ -935,7 +947,7 @@ class _RoundCounter extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          tooltip: '라운드 취소',
+          tooltip: context.l10n.undoRound,
           onPressed: rounds > 0 ? onUndo : null,
           icon: const Icon(Icons.undo_rounded),
           color: Colors.white,
@@ -956,7 +968,7 @@ class _RoundCounter extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        '라운드',
+                        context.l10n.roundsCounter,
                         style: TextStyle(color: color, fontSize: 17, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(width: 10),

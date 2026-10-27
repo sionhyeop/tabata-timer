@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 
 import '../../data/app_scope.dart';
+import '../../l10n/l10n.dart';
 import '../../models/workout_config.dart';
 import '../../services/background_session.dart';
 import 'workout_page.dart';
 
 /// Opens the full-screen workout for [config]. Routines are remembered for
-/// the "최근 루틴" banner.
+/// the "최근 루틴" banner; a quick timer is named after its mode in the
+/// current language.
 Future<void> launchWorkout(
   BuildContext context,
   WorkoutConfig config, {
   bool isRoutine = false,
 }) async {
-  if (isRoutine) AppScope.of(context).routines.markUsed(config.id);
+  if (isRoutine) {
+    AppScope.of(context).routines.markUsed(config.id);
+  } else {
+    config = config.copyWith(name: config.mode.label(context.l10n));
+  }
   final navigator = Navigator.of(context, rootNavigator: true);
   // First workout only: lets the running timer show in the notification
   // shade while the app is in the background.

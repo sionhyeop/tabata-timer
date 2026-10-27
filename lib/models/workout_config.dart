@@ -1,4 +1,3 @@
-import '../utils/format.dart';
 import 'timer_mode.dart';
 
 /// Everything needed to build a workout timeline.
@@ -33,10 +32,12 @@ class WorkoutConfig {
   final int cooldownSec;
   final List<String> exercises;
 
+  /// Starting values per mode. The names are placeholders: quick timers
+  /// are named after their mode in the app language when they start.
   static WorkoutConfig defaults(TimerMode mode) => switch (mode) {
     TimerMode.tabata => const WorkoutConfig(
       id: 'quick-tabata',
-      name: '타바타',
+      name: 'Tabata',
       mode: TimerMode.tabata,
       workSec: 20,
       restSec: 10,
@@ -45,7 +46,7 @@ class WorkoutConfig {
     ),
     TimerMode.interval => const WorkoutConfig(
       id: 'quick-interval',
-      name: '인터벌',
+      name: 'Interval',
       mode: TimerMode.interval,
       workSec: 40,
       restSec: 20,
@@ -74,37 +75,11 @@ class WorkoutConfig {
     ),
     TimerMode.rest => const WorkoutConfig(
       id: 'quick-rest',
-      name: '휴식',
+      name: 'Rest',
       mode: TimerMode.rest,
       workSec: 90,
     ),
   };
-
-  /// Short human summary, e.g. "20초 · 10초 · 8라운드".
-  /// The plan in a few pieces, e.g. (운동, 20초), (휴식, 10초), and the
-  /// repeat counts 8라운드 / 2세트 flagged [repeat] so they can be shown
-  /// as small "×8라운드" multipliers.
-  List<({String label, String value, bool repeat})> get summaryParts {
-    const t = formatDurationKo;
-    return switch (mode) {
-      TimerMode.tabata || TimerMode.interval => [
-        (label: '운동', value: t(workSec), repeat: false),
-        if (restSec > 0) (label: '휴식', value: t(restSec), repeat: false),
-        (label: '', value: '$rounds라운드', repeat: true),
-        if (sets > 1) (label: '', value: '$sets세트', repeat: true),
-      ],
-      TimerMode.emom => [
-        (label: '', value: '${t(workSec)}마다', repeat: false),
-        (label: '', value: '$rounds라운드', repeat: true),
-      ],
-      TimerMode.amrap => [(label: '제한 시간', value: t(workSec), repeat: false)],
-      TimerMode.forTime =>
-        workSec > 0
-            ? [(label: '타임캡', value: t(workSec), repeat: false)]
-            : [(label: '', value: '타임캡 없음', repeat: false)],
-      TimerMode.rest => [(label: '휴식', value: t(workSec), repeat: false)],
-    };
-  }
 
   WorkoutConfig copyWith({
     String? id,

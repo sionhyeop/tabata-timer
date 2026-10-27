@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/app_scope.dart';
+import '../../l10n/l10n.dart';
 import '../../models/timer_mode.dart';
 import '../../models/workout_record.dart';
 import '../../theme/app_colors.dart';
@@ -33,10 +34,11 @@ class _SummaryPageState extends State<SummaryPage> {
   @override
   Widget build(BuildContext context) {
     final r = widget.record;
+    final s = context.l10n;
     final (roundsValue, roundsLabel) = switch (r.mode) {
-      TimerMode.amrap => ('${r.amrapRounds}', '라운드'),
-      TimerMode.forTime => ('${r.laps.length}', '랩'),
-      _ => ('${r.workRounds}', '라운드'),
+      TimerMode.amrap => ('${r.amrapRounds}', s.fieldRounds),
+      TimerMode.forTime => ('${r.laps.length}', s.lap),
+      _ => ('${r.workRounds}', s.fieldRounds),
     };
     final palette = AppPalette.of(context);
     return Scaffold(
@@ -52,12 +54,13 @@ class _SummaryPageState extends State<SummaryPage> {
                       padding: const EdgeInsets.fromLTRB(20, 56, 20, 16),
                       children: [
                         Text(
-                          r.completed ? '운동 완료!' : '여기까지 했어요',
+                          r.completed ? s.workoutComplete : s.stoppedHere,
                           style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${r.name} · ${formatDateLabel(r.startedAt)} ${formatTimeOfDay(r.startedAt)}',
+                          '${r.name} · ${formatDateLabel(r.startedAt, s.localeName)} '
+                          '${formatTimeOfDay(r.startedAt, s.localeName)}',
                           style: TextStyle(color: palette.textSecondary, fontSize: 15),
                         ),
                         const SizedBox(height: 28),
@@ -66,7 +69,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             Expanded(
                               child: _Stat(
                                 value: formatElapsedMs(r.activeMs),
-                                label: r.mode == TimerMode.forTime ? '완료 시간' : '운동 시간',
+                                label: r.mode == TimerMode.forTime ? s.finishTime : s.workoutTime,
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -75,7 +78,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: _Stat(value: '${r.kcal}', label: 'kcal (추정)'),
+                              child: _Stat(value: '${r.kcal}', label: s.kcalEstimated),
                             ),
                           ],
                         ),
@@ -88,9 +91,9 @@ class _SummaryPageState extends State<SummaryPage> {
                           padding: const EdgeInsets.fromLTRB(16, 22, 16, 16),
                           child: Column(
                             children: [
-                              const Text(
-                                '오늘 강도는 어땠나요?',
-                                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                              Text(
+                                s.howHard,
+                                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                               ),
                               const SizedBox(height: 20),
                               Row(
@@ -109,7 +112,7 @@ class _SummaryPageState extends State<SummaryPage> {
                               ),
                               const SizedBox(height: 22),
                               PrimaryButton(
-                                label: '기록하기',
+                                label: s.logIt,
                                 height: 52,
                                 onPressed: _rpe == null ? null : _save,
                               ),
@@ -124,7 +127,7 @@ class _SummaryPageState extends State<SummaryPage> {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        '닫기',
+                        s.close,
                         style: TextStyle(color: palette.textSecondary, fontSize: 16),
                       ),
                     ),
@@ -185,7 +188,7 @@ class _LapsCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: Row(
                 children: [
-                  Text('랩 ${i + 1}', style: TextStyle(color: palette.textSecondary)),
+                  Text(context.l10n.lapN(i + 1), style: TextStyle(color: palette.textSecondary)),
                   const Spacer(),
                   Text(
                     '+${formatLapMs(laps[i] - (i == 0 ? 0 : laps[i - 1]))}',

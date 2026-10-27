@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../models/timer_mode.dart';
 import '../../theme/app_colors.dart';
 
@@ -33,7 +34,7 @@ class ModeChips extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: Center(
                   child: Text(
-                    mode.label,
+                    mode.label(context.l10n),
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,

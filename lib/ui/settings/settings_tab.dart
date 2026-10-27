@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/app_scope.dart';
 import '../../data/default_routines.dart';
+import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../theme/app_colors.dart';
 import '../widgets/common.dart';
@@ -16,6 +17,8 @@ class SettingsTab extends StatelessWidget {
     final services = AppScope.of(context);
     final store = services.settings;
     final palette = AppPalette.of(context);
+    final l10n = context.l10n;
+    String seconds(int v) => l10n.durationSec(v);
     return SafeArea(
       bottom: false,
       child: ListenableBuilder(
@@ -26,103 +29,115 @@ class SettingsTab extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
             children: [
-              const ScreenHeader(title: '설정'),
-              const SectionLabel('소리와 진동'),
+              ScreenHeader(title: l10n.tabSettings),
+              SectionLabel(l10n.sectionSound),
               _Group(
                 children: [
                   _SwitchRow(
-                    title: '효과음',
-                    subtitle: '카운트다운 비프와 전환음',
+                    title: l10n.soundEffects,
+                    subtitle: l10n.soundEffectsSub,
                     value: s.soundOn,
                     onChanged: (v) => set((s) => s.copyWith(soundOn: v)),
                   ),
                   _SwitchRow(
-                    title: '음성 안내',
-                    subtitle: '“운동”, “휴식, 다음은 버피”처럼 말해줘요',
+                    title: l10n.voiceGuide,
+                    subtitle: l10n.voiceGuideSub,
                     value: s.voiceOn,
                     onChanged: (v) => set((s) => s.copyWith(voiceOn: v)),
                   ),
                   _SwitchRow(
-                    title: '매초 신호음',
-                    subtitle: '타이머가 도는 동안 1초마다 짧게 삐-',
+                    title: l10n.tickBeep,
+                    subtitle: l10n.tickBeepSub,
                     value: s.tickOn,
                     onChanged: (v) => set((s) => s.copyWith(tickOn: v)),
                   ),
                   _TapRow(
-                    title: '목소리',
-                    subtitle: s.voiceName ?? '자동 · 가장 자연스러운 한국어 목소리',
+                    title: l10n.voice,
+                    subtitle:
+                        s.voiceFor(services.language.locale.languageCode)?.name ??
+                        l10n.voiceAutoSummary,
                     onTap: () => showVoiceSheet(context),
                   ),
                   _SwitchRow(
-                    title: '진동',
+                    title: l10n.vibration,
                     value: s.vibrationOn,
                     onChanged: (v) => set((s) => s.copyWith(vibrationOn: v)),
                   ),
                   _TapRow(
-                    title: '소리 테스트',
+                    title: l10n.soundTest,
                     trailing: Icon(Icons.volume_up_rounded, color: palette.textSecondary),
                     onTap: services.cues.preview,
                   ),
                 ],
               ),
-              const SectionLabel('타이머'),
+              SectionLabel(l10n.tabTimer),
               _Group(
                 children: [
                   _ChoiceRow(
-                    title: '카운트다운 비프',
-                    subtitle: '단계가 끝나기 전 짧은 비프',
+                    title: l10n.countdownBeeps,
+                    subtitle: l10n.countdownBeepsSub,
                     child: SegmentedPills<int>(
                       options: const [0, 3, 5],
                       selected: s.countdownBeeps,
-                      labelOf: (v) => v == 0 ? '끄기' : '$v초',
+                      labelOf: (v) => v == 0 ? l10n.off : seconds(v),
                       onChanged: (v) => set((s) => s.copyWith(countdownBeeps: v)),
                     ),
                   ),
                   _ChoiceRow(
-                    title: '준비 시간',
-                    subtitle: '시작 버튼을 누른 뒤 자세를 잡는 시간',
+                    title: l10n.prepareTime,
+                    subtitle: l10n.prepareTimeSub,
                     child: SegmentedPills<int>(
                       options: const [0, 5, 10, 15],
                       selected: s.prepareSec,
-                      labelOf: (v) => v == 0 ? '없음' : '$v초',
+                      labelOf: (v) => v == 0 ? l10n.none : seconds(v),
                       onChanged: (v) => set((s) => s.copyWith(prepareSec: v)),
                     ),
                   ),
                   _SwitchRow(
-                    title: '절반 알림',
-                    subtitle: '30초 이상 운동에서 절반 지점을 알려줘요',
+                    title: l10n.halfwayAlert,
+                    subtitle: l10n.halfwayAlertSub,
                     value: s.halfwayAlert,
                     onChanged: (v) => set((s) => s.copyWith(halfwayAlert: v)),
                   ),
                 ],
               ),
-              const SectionLabel('화면'),
+              SectionLabel(l10n.sectionDisplay),
               _Group(
                 children: [
                   _ChoiceRow(
-                    title: '테마',
-                    subtitle: '시스템은 기기의 라이트·다크 설정을 따라가요',
+                    title: l10n.theme,
+                    subtitle: l10n.themeSub,
                     child: SegmentedPills<Appearance>(
                       options: Appearance.values,
                       selected: s.appearance,
-                      labelOf: (a) => a.label,
+                      labelOf: (a) => a.label(l10n),
                       onChanged: (a) => set((s) => s.copyWith(appearance: a)),
                     ),
                   ),
+                  _ChoiceRow(
+                    title: l10n.language,
+                    subtitle: l10n.languageSub,
+                    child: SegmentedPills<AppLanguage>(
+                      options: AppLanguage.values,
+                      selected: s.language,
+                      labelOf: (a) => a.label(l10n),
+                      onChanged: (a) => set((s) => s.copyWith(language: a)),
+                    ),
+                  ),
                   _SwitchRow(
-                    title: '운동 중 화면 켜짐 유지',
-                    subtitle: '운동 화면에서만 적용돼요',
+                    title: l10n.keepScreenOn,
+                    subtitle: l10n.keepScreenOnSub,
                     value: s.keepScreenOn,
                     onChanged: (v) => set((s) => s.copyWith(keepScreenOn: v)),
                   ),
                 ],
               ),
-              const SectionLabel('칼로리'),
+              SectionLabel(l10n.sectionCalories),
               _Group(
                 children: [
                   _TapRow(
-                    title: '체중',
-                    subtitle: '소모 칼로리 추정에만 사용해요',
+                    title: l10n.bodyWeight,
+                    subtitle: l10n.bodyWeightSub,
                     trailing: Text(
                       '${s.weightKg}kg',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
@@ -131,7 +146,7 @@ class SettingsTab extends StatelessWidget {
                       final kg = await showValuePicker(
                         context,
                         ConfigField(
-                          label: '체중',
+                          label: l10n.bodyWeight,
                           kind: ValueKind.count,
                           value: s.weightKg,
                           min: 30,
@@ -145,33 +160,36 @@ class SettingsTab extends StatelessWidget {
                   ),
                 ],
               ),
-              const SectionLabel('데이터'),
+              SectionLabel(l10n.sectionData),
               _Group(
                 children: [
                   _TapRow(
-                    title: '기본 루틴 복원',
-                    subtitle: '삭제한 기본 루틴을 다시 추가해요',
+                    title: l10n.restorePresets,
+                    subtitle: l10n.restorePresetsSub,
                     onTap: () {
                       final routines = services.routines;
                       var added = 0;
-                      for (final preset in defaultRoutines.reversed) {
+                      for (final preset in defaultRoutines(l10n).reversed) {
                         if (routines.byId(preset.id) == null) {
                           routines.save(preset);
                           added++;
                         }
                       }
-                      showToast(context, added == 0 ? '모든 기본 루틴이 이미 있어요' : '기본 루틴 $added개를 복원했어요');
+                      showToast(
+                        context,
+                        added == 0 ? l10n.presetsAllThere : l10n.presetsRestored(added),
+                      );
                     },
                   ),
                   _TapRow(
-                    title: '운동 기록 초기화',
+                    title: l10n.clearHistory,
                     titleColor: AppColors.accent,
                     onTap: () async {
                       final ok = await showConfirmDialog(
                         context,
-                        title: '모든 기록을 삭제할까요?',
-                        message: '삭제한 기록은 되돌릴 수 없어요.',
-                        confirmLabel: '삭제',
+                        title: l10n.clearHistoryTitle,
+                        message: l10n.clearHistoryMessage,
+                        confirmLabel: l10n.delete,
                       );
                       if (ok) services.history.clear();
                     },
@@ -181,7 +199,7 @@ class SettingsTab extends StatelessWidget {
               const SizedBox(height: 28),
               Center(
                 child: Text(
-                  '타바타 타이머 1.4.0',
+                  '${l10n.appTitle} 1.5.0',
                   style: TextStyle(color: palette.textTertiary, fontSize: 12),
                 ),
               ),

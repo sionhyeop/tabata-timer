@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services/app_language.dart';
 import '../services/cue_player.dart';
 import 'history_store.dart';
 import 'routine_store.dart';
@@ -10,6 +11,7 @@ import 'timer_setup_store.dart';
 class AppServices {
   AppServices._({
     required this.settings,
+    required this.language,
     required this.setup,
     required this.routines,
     required this.history,
@@ -18,16 +20,21 @@ class AppServices {
 
   factory AppServices(SharedPreferences prefs, {bool silent = false}) {
     final settings = SettingsStore(prefs);
+    final language = AppLanguageController(settings);
+    final routines = RoutineStore(prefs, language.strings)..localizePresets(language.strings);
+    language.addListener(() => routines.localizePresets(language.strings));
     return AppServices._(
       settings: settings,
+      language: language,
       setup: TimerSetupStore(prefs),
-      routines: RoutineStore(prefs),
+      routines: routines,
       history: HistoryStore(prefs),
-      cues: CuePlayer(settings, silent: silent),
+      cues: CuePlayer(settings, language, silent: silent),
     );
   }
 
   final SettingsStore settings;
+  final AppLanguageController language;
   final TimerSetupStore setup;
   final RoutineStore routines;
   final HistoryStore history;

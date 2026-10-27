@@ -6,8 +6,9 @@
 
 <p align="center">
   타바타부터 HIIT·EMOM·AMRAP·For Time·휴식 타이머까지,<br>
-  탭 한 번으로 시작하는 운동 타이머 · 다크/라이트 모드 (Flutter · Android / iOS)
+  탭 한 번으로 시작하는 운동 타이머 · 다크/라이트 모드 · 한국어/English (Flutter · Android / iOS)
 </p>
+<p align="center"><a href="#english">English</a></p>
 
 <p align="center">
   <img src="docs/screenshots/01_home_tabata.png" width="200">
@@ -40,7 +41,8 @@
 - **루틴** — 기본 루틴 9종, 라운드별 운동 이름(서킷), 저장·편집·복제·삭제, 최근 루틴 빠른 시작
 - **기록** — 완료 화면(축하·요약·칼로리 추정·운동 강도), 주간 차트, 연속 운동일
 - **다크 · 라이트 모드** — 기기 설정을 따르거나 직접 선택. 라이트는 눈부시지 않은 차분한 회청색 톤이고, 운동 화면은 멀리서도 잘 보이도록 늘 어둡게
-- **설정** — 효과음·음성·진동, 카운트다운 길이, 준비 시간, 테마, 화면 켜짐 유지, 체중
+- **한국어 · English** — 기기 언어를 따르거나 설정에서 선택. 화면, 음성 안내, 알림, 기본 루틴 이름, 날짜·시간 표기, 앱 이름까지 바뀜
+- **설정** — 효과음·음성·진동, 카운트다운 길이, 준비 시간, 테마, 언어, 화면 켜짐 유지, 체중
 
 ## 설치
 
@@ -69,9 +71,33 @@ lib/
 ├─ engine/     단계 계산(workout_plan) · 실행기(workout_runner) · 큐 이벤트 · 강도 추정(intensity)
 ├─ models/     WorkoutConfig, IntervalStep, WorkoutRecord, AppSettings
 ├─ data/       설정·루틴·기록·타이머 설정 저장소, AppScope
-├─ services/   CuePlayer(효과음·음성·진동), 칼로리 추정
+├─ l10n/       문구(app_en.arb · app_ko.arb)와 생성된 AppLocalizations
+├─ services/   CuePlayer(효과음·음성·진동), 앱 언어, 칼로리 추정
 ├─ theme/      컬러 토큰, ThemeData
 └─ ui/         timer · routines · history · settings · workout · widgets
 ```
 
 기획 배경, 기능 명세, 화면 설계, 로드맵은 [docs/PLANNING.md](docs/PLANNING.md)에 있습니다.
+
+문구를 고치거나 언어를 추가하려면 `lib/l10n/app_*.arb`를 수정한 뒤 `flutter gen-l10n`을 실행하세요.
+
+---
+
+## English
+
+A workout timer for Tabata, intervals (HIIT), EMOM, AMRAP, For Time and rest — pick a mode, adjust a couple of numbers, tap Start. Built with Flutter for Android and iOS.
+
+<p align="center">
+  <img src="docs/screenshots/20_en_home.png" width="200" alt="Timer">
+  <img src="docs/screenshots/22_en_workout.png" width="200" alt="Workout">
+  <img src="docs/screenshots/24_en_routines.png" width="200" alt="Routines">
+</p>
+
+- **Six timers** with work/rest shown as one card and a live ratio bar
+- **Readable from across the room** — full-screen phase colors, a huge countdown, what's next
+- **Voice and beeps you don't have to look at** — a beep every second, 3-2-1, and spoken cues (“Go”, “Rest. Next up, burpees”) using the most natural voice on the device
+- **Keeps going in the background** — over your music, with the screen off; on Android the notification shows a progress bar
+- **Routines and history** — nine built-in routines, exercise names per round, weekly chart, streaks, effort rating
+- **Light and dark**, **English and Korean** — follows the device or pick in Settings
+
+Download the Android APK from [Releases](../../releases/latest) (Android 7.0+; signed with a debug key for personal use).

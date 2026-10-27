@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/l10n.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
-import '../../utils/format.dart';
 import 'common.dart';
 
 enum ValueKind { duration, count }
@@ -42,14 +42,14 @@ class ConfigField {
   final String? unit;
 
   /// "20초", "1분 30초", "8", "65kg" — or [zeroLabel].
-  String get display {
+  String display(AppLocalizations s) {
     if (value == 0 && zeroLabel != null) return zeroLabel!;
-    return kind == ValueKind.duration ? formatDurationKo(value) : '$value${unit ?? ''}';
+    return kind == ValueKind.duration ? formatDuration(s, value) : '$value${unit ?? ''}';
   }
 
   /// [display] with numbers in [numberStyle] and units smaller and in
   /// [unitColor], so "20초" reads as a big 20 with its unit beside it.
-  InlineSpan styledDisplay(TextStyle numberStyle, Color unitColor) {
+  InlineSpan styledDisplay(AppLocalizations s, TextStyle numberStyle, Color unitColor) {
     final unitStyle = numberStyle.copyWith(
       fontSize: (numberStyle.fontSize ?? 30) * 0.46,
       fontWeight: FontWeight.w700,
@@ -57,7 +57,7 @@ class ConfigField {
     );
     if (value == 0 && zeroLabel != null) return TextSpan(text: zeroLabel, style: numberStyle);
     final parts = kind == ValueKind.duration
-        ? durationParts(value)
+        ? durationParts(s, value)
         : [(text: '$value', isUnit: false), if (unit != null) (text: '\u2009$unit', isUnit: true)];
     return TextSpan(
       children: [
@@ -152,6 +152,7 @@ class ValueTile extends StatelessWidget {
   Widget _content(BuildContext context) {
     final f = field;
     final palette = AppPalette.of(context);
+    final s = context.l10n;
     final label = Row(
       children: [
         if (f.dot != null) ...[
@@ -162,21 +163,29 @@ class ValueTile extends StatelessWidget {
           ),
           const SizedBox(width: 6),
         ],
-        Text(
-          f.label,
-          style: TextStyle(color: palette.textSecondary, fontSize: 14, fontWeight: FontWeight.w600),
+        Flexible(
+          child: Text(
+            f.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: palette.textSecondary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ],
     );
     final minus = _StepButton(
       icon: Icons.remove,
-      label: '${f.label} 줄이기',
+      label: s.stepDown(f.label),
       enabled: f.value > f.min,
       onStep: f.decrement,
     );
     final plus = _StepButton(
       icon: Icons.add,
-      label: '${f.label} 늘리기',
+      label: s.stepUp(f.label),
       enabled: f.value < f.max,
       onStep: f.increment,
     );
@@ -192,7 +201,7 @@ class ValueTile extends StatelessWidget {
               Expanded(
                 child: Semantics(
                   button: true,
-                  label: '${f.label} ${f.display}, 탭하여 직접 입력',
+                  label: s.valueTapToEdit(f.label, f.display(s)),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(8),
                     onTap: () => _openPicker(context),
@@ -202,6 +211,7 @@ class ValueTile extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text.rich(
                           f.styledDisplay(
+                            s,
                             TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.w800,
@@ -231,7 +241,7 @@ class ValueTile extends StatelessWidget {
         const SizedBox(height: 6),
         Semantics(
           button: true,
-          label: '${f.label} ${f.display}, 탭하여 직접 입력',
+          label: s.valueTapToEdit(f.label, f.display(s)),
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
             onTap: () => _openPicker(context),
@@ -243,6 +253,7 @@ class ValueTile extends StatelessWidget {
                 alignment: large ? Alignment.center : Alignment.centerLeft,
                 child: Text.rich(
                   f.styledDisplay(
+                    s,
                     TextStyle(
                       fontSize: large ? 56 : 36,
                       fontWeight: FontWeight.w800,
@@ -387,6 +398,7 @@ class _PickerSheetState extends State<_PickerSheet> {
     final isDuration = f.kind == ValueKind.duration;
     final maxMinutes = f.max ~/ 60;
     final palette = AppPalette.of(context);
+    final s = context.l10n;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -415,7 +427,7 @@ class _PickerSheetState extends State<_PickerSheet> {
                             child: _wheel(
                               count: maxMinutes + 1,
                               initial: _minutes,
-                              label: (i) => '$i분',
+                              label: s.durationMin,
                               onChanged: (i) => _minutes = i,
                             ),
                           ),
@@ -423,7 +435,7 @@ class _PickerSheetState extends State<_PickerSheet> {
                             child: _wheel(
                               count: 60,
                               initial: _seconds,
-                              label: (i) => '$i초',
+                              label: s.durationSec,
                               onChanged: (i) => _seconds = i,
                             ),
                           ),
@@ -441,12 +453,12 @@ class _PickerSheetState extends State<_PickerSheet> {
             Row(
               children: [
                 Expanded(
-                  child: SecondaryButton(label: '취소', onPressed: () => Navigator.pop(context)),
+                  child: SecondaryButton(label: s.cancel, onPressed: () => Navigator.pop(context)),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: PrimaryButton(
-                    label: '확인',
+                    label: s.confirm,
                     onPressed: () => Navigator.pop(context, _result.clamp(f.min, f.max)),
                   ),
                 ),

@@ -1,13 +1,8 @@
 /// Light or dark look; [system] follows the device.
-enum Appearance {
-  system('시스템'),
-  light('라이트'),
-  dark('다크');
+enum Appearance { system, light, dark }
 
-  const Appearance(this.label);
-
-  final String label;
-}
+/// App language; [system] follows the device, falling back to English.
+enum AppLanguage { system, ko, en }
 
 class AppSettings {
   const AppSettings({
@@ -23,6 +18,7 @@ class AppSettings {
     this.voiceName,
     this.voiceLocale,
     this.appearance = Appearance.system,
+    this.language = AppLanguage.system,
   });
 
   /// Bumped when a default changes in a way stored settings should follow.
@@ -51,6 +47,15 @@ class AppSettings {
   final String? voiceLocale;
 
   final Appearance appearance;
+  final AppLanguage language;
+
+  /// The chosen voice if it speaks [languageCode]; null means pick the best
+  /// one automatically.
+  ({String name, String locale})? voiceFor(String languageCode) {
+    final name = voiceName, locale = voiceLocale;
+    if (name == null || locale == null) return null;
+    return locale.toLowerCase().startsWith(languageCode) ? (name: name, locale: locale) : null;
+  }
 
   AppSettings copyWith({
     bool? soundOn,
@@ -65,6 +70,7 @@ class AppSettings {
     (String, String)? voice,
     bool clearVoice = false,
     Appearance? appearance,
+    AppLanguage? language,
   }) => AppSettings(
     soundOn: soundOn ?? this.soundOn,
     voiceOn: voiceOn ?? this.voiceOn,
@@ -78,6 +84,7 @@ class AppSettings {
     voiceName: clearVoice ? null : (voice?.$1 ?? voiceName),
     voiceLocale: clearVoice ? null : (voice?.$2 ?? voiceLocale),
     appearance: appearance ?? this.appearance,
+    language: language ?? this.language,
   );
 
   Map<String, dynamic> toJson() => {
@@ -93,6 +100,7 @@ class AppSettings {
     'voiceName': voiceName,
     'voiceLocale': voiceLocale,
     'appearance': appearance.name,
+    'language': language.name,
     'schema': schemaVersion,
   };
 
@@ -115,6 +123,7 @@ class AppSettings {
       voiceName: json['voiceName'] as String?,
       voiceLocale: json['voiceLocale'] as String?,
       appearance: Appearance.values.asNameMap()[json['appearance']] ?? d.appearance,
+      language: AppLanguage.values.asNameMap()[json['language']] ?? d.language,
     );
   }
 }

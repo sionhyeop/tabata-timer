@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../engine/intensity.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/app_colors.dart';
 
 /// Perceived effort after a workout. Shares faces and colors with the
 /// expected-intensity meter; only the wording is about how it felt.
 class RpeLevel {
-  const RpeLevel(this.intensity, this.label);
+  const RpeLevel(this.intensity);
 
   final IntensityLevel intensity;
-  final String label;
+
+  String label(AppLocalizations s) => intensity.rpeLabel(s);
 
   int get value => intensity.value;
   String get emoji => intensity.emoji;
@@ -23,13 +25,7 @@ class RpeLevel {
   }
 }
 
-const rpeLevels = [
-  RpeLevel(IntensityLevel.light, '가벼워요'),
-  RpeLevel(IntensityLevel.moderate, '적당해요'),
-  RpeLevel(IntensityLevel.vigorous, '힘들어요'),
-  RpeLevel(IntensityLevel.hard, '버거워요'),
-  RpeLevel(IntensityLevel.extreme, '한계예요'),
-];
+final rpeLevels = [for (final level in IntensityLevel.values) RpeLevel(level)];
 
 /// Colored circle + caption, like the mood picker in the reference.
 class RpeOption extends StatelessWidget {
@@ -49,10 +45,11 @@ class RpeOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
+    final label = level.label(context.l10n);
     return Semantics(
       button: true,
       selected: selected,
-      label: level.label,
+      label: label,
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
@@ -78,7 +75,7 @@ class RpeOption extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                level.label,
+                label,
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.visible,

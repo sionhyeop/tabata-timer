@@ -3,14 +3,15 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/workout_config.dart';
 import 'default_routines.dart';
 
 class RoutineStore extends ChangeNotifier {
-  RoutineStore(this._prefs) {
+  RoutineStore(this._prefs, AppLocalizations strings) {
     final raw = _prefs.getString(_key);
     if (raw == null) {
-      _routines.addAll(defaultRoutines);
+      _routines.addAll(defaultRoutines(strings));
       _persist();
     } else {
       _routines.addAll(
@@ -52,9 +53,9 @@ class RoutineStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void duplicate(WorkoutConfig routine) {
+  void duplicate(WorkoutConfig routine, {required String name}) {
     final i = _routines.indexWhere((r) => r.id == routine.id);
-    _routines.insert(i + 1, routine.copyWith(id: newId(), name: '${routine.name} 복사본'));
+    _routines.insert(i + 1, routine.copyWith(id: newId(), name: name));
     _persist();
     notifyListeners();
   }
@@ -68,6 +69,33 @@ class RoutineStore extends ChangeNotifier {
   void markUsed(String id) {
     _lastUsedId = id;
     _prefs.setString(_lastUsedKey, id);
+    notifyListeners();
+  }
+
+  /// Default routines the user hasn't renamed or re-listed follow the app
+  /// language; edited ones keep the user's words.
+  void localizePresets(AppLocalizations strings) {
+    final current = {for (final p in defaultRoutines(strings)) p.id: p};
+    final everyLanguage = [
+      for (final locale in AppLocalizations.supportedLocales)
+        ...defaultRoutines(lookupAppLocalizations(locale)),
+    ];
+    var changed = false;
+    for (var i = 0; i < _routines.length; i++) {
+      final r = _routines[i];
+      final preset = current[r.id];
+      if (preset == null) continue;
+      final variants = everyLanguage.where((p) => p.id == r.id);
+      final name = variants.any((p) => p.name == r.name) ? preset.name : r.name;
+      final exercises = variants.any((p) => listEquals(p.exercises, r.exercises))
+          ? preset.exercises
+          : r.exercises;
+      if (name == r.name && listEquals(exercises, r.exercises)) continue;
+      _routines[i] = r.copyWith(name: name, exercises: exercises);
+      changed = true;
+    }
+    if (!changed) return;
+    _persist();
     notifyListeners();
   }
 

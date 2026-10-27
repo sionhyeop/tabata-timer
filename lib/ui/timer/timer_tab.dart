@@ -4,6 +4,7 @@ import '../../data/app_scope.dart';
 import '../../data/routine_store.dart';
 import '../../engine/intensity.dart';
 import '../../engine/workout_plan.dart';
+import '../../l10n/l10n.dart';
 import '../../models/timer_mode.dart';
 import '../../models/workout_config.dart';
 import '../../theme/app_colors.dart';
@@ -24,6 +25,7 @@ class TimerTab extends StatelessWidget {
     final services = AppScope.of(context);
     final setup = services.setup;
     final palette = AppPalette.of(context);
+    final s = context.l10n;
     return ListenableBuilder(
       listenable: Listenable.merge([setup, services.routines]),
       builder: (context, _) {
@@ -40,10 +42,10 @@ class TimerTab extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: ScreenHeader(
-                        subtitle: '오늘도 힘내요',
-                        title: config.mode.label,
+                        subtitle: s.timerGreeting,
+                        title: config.mode.label(s),
                         trailing: IconButton(
-                          tooltip: '루틴으로 저장',
+                          tooltip: s.saveAsRoutine,
                           onPressed: () => _saveAsRoutine(context, config),
                           icon: const Icon(Icons.bookmark_add_outlined),
                           color: palette.textSecondary,
@@ -55,7 +57,7 @@ class TimerTab extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
                         child: GradientBanner(
                           icon: Icons.replay_rounded,
-                          label: '최근 루틴 · ${recent.name}',
+                          label: s.recentRoutine(recent.name),
                           onTap: () => launchWorkout(context, recent, isRoutine: true),
                         ),
                       ),
@@ -63,7 +65,7 @@ class TimerTab extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(24, 10, 24, 12),
                       child: Text(
-                        config.mode.description,
+                        config.mode.description(s),
                         style: TextStyle(color: palette.textSecondary, fontSize: 14),
                       ),
                     ),
@@ -77,10 +79,8 @@ class TimerTab extends StatelessWidget {
                         child: SegmentedPills<int>(
                           options: const [30, 60, 90, 120, 180],
                           selected: config.workSec,
-                          labelOf: (s) => s < 60
-                              ? '$s초'
-                              : (s % 60 == 0 ? '${s ~/ 60}분' : '${s ~/ 60}분 ${s % 60}초'),
-                          onChanged: (s) => setup.update(config.copyWith(workSec: s)),
+                          labelOf: (sec) => formatDuration(s, sec),
+                          onChanged: (sec) => setup.update(config.copyWith(workSec: sec)),
                         ),
                       ),
                     _SummaryCard(config: config),
@@ -90,7 +90,7 @@ class TimerTab extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
                 child: PrimaryButton(
-                  label: '시작',
+                  label: s.start,
                   icon: Icons.play_arrow_rounded,
                   onPressed: () => launchWorkout(context, config),
                 ),
@@ -104,10 +104,11 @@ class TimerTab extends StatelessWidget {
 
   Future<void> _saveAsRoutine(BuildContext context, WorkoutConfig config) async {
     final routines = AppScope.of(context).routines;
-    final name = await showNameSheet(context, initial: '나의 ${config.mode.label}');
+    final s = context.l10n;
+    final name = await showNameSheet(context, initial: s.myRoutineName(config.mode.label(s)));
     if (name == null || !context.mounted) return;
     routines.save(config.copyWith(id: RoutineStore.newId(), name: name));
-    showToast(context, '루틴에 저장했어요');
+    showToast(context, s.savedToRoutines);
   }
 }
 
@@ -121,11 +122,12 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = workoutDurationSec(config);
+    final s = context.l10n;
     final (label, value) = switch (config.mode) {
-      TimerMode.forTime when total == null => ('스톱워치', '제한 없음'),
-      TimerMode.forTime => ('최대', formatClock(total!)),
-      TimerMode.rest => ('휴식', formatClock(total!)),
-      _ => ('총 운동 시간', formatClock(total!)),
+      TimerMode.forTime when total == null => (s.summaryStopwatch, s.summaryNoLimit),
+      TimerMode.forTime => (s.summaryMax, formatClock(total!)),
+      TimerMode.rest => (s.phaseRest, formatClock(total!)),
+      _ => (s.summaryTotal, formatClock(total!)),
     };
     final intensity = estimateIntensity(config);
     return Padding(
@@ -152,7 +154,7 @@ class _SummaryCard extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: _Labeled(
-                  label: '예상 강도',
+                  label: s.expectedIntensity,
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
@@ -232,10 +234,10 @@ class _NameSheetState extends State<_NameSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              '루틴 이름',
+            Text(
+              context.l10n.routineName,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -244,10 +246,13 @@ class _NameSheetState extends State<_NameSheet> {
               maxLength: 30,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(hintText: '예) 아침 타바타', counterText: ''),
+              decoration: InputDecoration(
+                hintText: context.l10n.routineNameExample,
+                counterText: '',
+              ),
             ),
             const SizedBox(height: 16),
-            PrimaryButton(label: '저장', onPressed: _submit),
+            PrimaryButton(label: context.l10n.save, onPressed: _submit),
           ],
         ),
       ),

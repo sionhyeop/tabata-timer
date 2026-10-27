@@ -432,6 +432,9 @@ tool/gen_sounds.py              효과음 생성 스크립트
 - **flutter_tts의 Kotlin Gradle Plugin 경고**: 현재 빌드는 정상이나, 향후 Flutter 버전에서 빌드 실패 예고. 플러그인 업데이트를 확인할 것
 
 ## 13. 출시 전 체크리스트(참고)
-- 스플래시 이미지(현재 라이트·다크 단색 배경), 패키지 ID 확정, 서명(Android keystore / iOS 팀)
-- Play: 타깃 SDK, 데이터 보안 양식(수집 없음) / App Store: 개인정보 라벨(수집 없음)
-- 권한: 없음(진동은 일반 권한, 알림은 백로그 기능 도입 시)
+- 스플래시 이미지(현재 라이트·다크 단색 배경), 서명(Android keystore)
+- Play: 타깃 SDK, 데이터 보안 양식(수집 없음), 알림 권한(Android 13+)
+- **App Store**: 제출 자료·문구·웹 설정 순서는 [APP_STORE.md](APP_STORE.md), 개인정보 처리방침은 [PRIVACY.md](PRIVACY.md)
+  - [x] 번들 ID `com.tabatatimer.tabataTimer` 등록, 배포 서명(자동), iPhone 전용·세로, 수출 규정(암호화 없음), 개인정보 매니페스트
+  - [x] IPA 빌드, 6.9" 스크린샷(한국어·영어), 업로드 스크립트 `tool/ios_release.sh`
+  - [ ] App Store Connect 앱 레코드 생성 → 빌드 업로드 → 메타데이터·개인정보 라벨·연령 등급 → 심사 제출

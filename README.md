@@ -62,6 +62,7 @@ flutter analyze
 |---|---|
 | 화면 스크린샷(통합 테스트) | `flutter drive --driver=test_driver/integration_test.dart --target=integration_test/screenshots_test.dart -d <기기 ID>` → `build/screenshots/` |
 | 효과음 재생성 | `python3 tool/gen_sounds.py` |
+| iOS 빌드 + App Store 업로드 | `tool/ios_release.sh` (제출 자료: [docs/APP_STORE.md](docs/APP_STORE.md)) |
 | 앱 아이콘 재생성 | `python3 tool/gen_icon.py && dart run flutter_launcher_icons` (Chrome 필요) |
 
 ## 구조

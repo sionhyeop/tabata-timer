@@ -16,6 +16,11 @@ import 'weekly_chart.dart';
 class HistoryTab extends StatelessWidget {
   const HistoryTab({super.key});
 
+  /// Today, as far as the week chart and streak are concerned. Store
+  /// screenshots pin it to a day late in the week.
+  @visibleForTesting
+  static DateTime Function() clock = DateTime.now;
+
   @override
   Widget build(BuildContext context) {
     final history = AppScope.of(context).history;
@@ -26,7 +31,7 @@ class HistoryTab extends StatelessWidget {
       child: ListenableBuilder(
         listenable: history,
         builder: (context, _) {
-          final now = DateTime.now();
+          final now = clock();
           final records = history.records;
           final children = <Widget>[
             ScreenHeader(subtitle: s.historyTagline, title: s.tabHistory),

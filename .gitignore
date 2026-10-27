@@ -46,3 +46,6 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# App Store screenshots (large; regenerate with integration_test/store_screenshots_test.dart)
+/store/
